@@ -85,3 +85,17 @@ class VectorStore:
 
     def count(self) -> int:
         return self.collection.count()
+
+    def document_count(self) -> int:
+        """Count distinct indexed sources without exposing their metadata."""
+        if self.count() == 0:
+            return 0
+        payload = self.collection.get(include=["metadatas"])
+        metadatas = payload.get("metadatas") or []
+        return len(
+            {
+                str(metadata.get("source_id"))
+                for metadata in metadatas
+                if metadata and metadata.get("source_id")
+            }
+        )

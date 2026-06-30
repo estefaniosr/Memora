@@ -74,6 +74,9 @@ class MemoraService:
     def get_vector_count(self) -> int:
         return self.vector_store.count()
 
+    def get_document_count(self) -> int:
+        return self.vector_store.document_count()
+
     @staticmethod
     def _page_identity(search_result: dict[str, Any]) -> tuple[str, str]:
         page = search_result.get("content") or search_result
