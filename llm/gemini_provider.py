@@ -1,8 +1,8 @@
-"""Gemini provider using the google-generativeai SDK required by this phase."""
+"""Gemini provider using Google's current Gen AI SDK."""
 
 from __future__ import annotations
 
-import google.generativeai as genai
+from google import genai
 
 from llm.base import LLMProvider, LLMProviderError
 
@@ -13,12 +13,15 @@ class GeminiProvider(LLMProvider):
             raise ValueError("GEMINI_API_KEY é obrigatória para o provider Gemini.")
         if not model.strip():
             raise ValueError("GEMINI_MODEL é obrigatório para o provider Gemini.")
-        genai.configure(api_key=api_key)
-        self.model = genai.GenerativeModel(model)
+        self.model = model
+        self.client = genai.Client(api_key=api_key)
 
     def generate(self, prompt: str) -> str:
         try:
-            response = self.model.generate_content(prompt)
+            response = self.client.models.generate_content(
+                model=self.model,
+                contents=prompt,
+            )
             answer = response.text
         except Exception as exc:
             raise LLMProviderError("Falha ao gerar resposta com Gemini.") from exc

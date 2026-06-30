@@ -30,3 +30,45 @@ def test_ollama_connection_error_is_friendly(monkeypatch: Any) -> None:
 
     with pytest.raises(LLMProviderError, match="Verifique se o Ollama está rodando"):
         provider.generate("prompt")
+
+
+def test_gemini_uses_google_genai_client(monkeypatch: Any) -> None:
+    from llm import gemini_provider as module
+
+    calls: dict[str, Any] = {}
+
+    class FakeModels:
+        def generate_content(self, *, model: str, contents: str) -> Any:
+            calls.update(model=model, contents=contents)
+            return SimpleNamespace(text="Resposta do Gemini")
+
+    class FakeClient:
+        def __init__(self, *, api_key: str) -> None:
+            calls["api_key"] = api_key
+            self.models = FakeModels()
+
+    monkeypatch.setattr(module.genai, "Client", FakeClient)
+    provider = module.GeminiProvider("secret", "gemini-test")
+
+    assert provider.generate("prompt") == "Resposta do Gemini"
+    assert calls == {
+        "api_key": "secret",
+        "model": "gemini-test",
+        "contents": "prompt",
+    }
+
+
+def test_gemini_rejects_empty_response(monkeypatch: Any) -> None:
+    from llm import gemini_provider as module
+
+    class FakeClient:
+        def __init__(self, *, api_key: str) -> None:
+            self.models = SimpleNamespace(
+                generate_content=lambda **kwargs: SimpleNamespace(text=None)
+            )
+
+    monkeypatch.setattr(module.genai, "Client", FakeClient)
+    provider = module.GeminiProvider("secret", "gemini-test")
+
+    with pytest.raises(LLMProviderError, match="resposta vazia"):
+        provider.generate("prompt")
