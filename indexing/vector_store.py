@@ -26,7 +26,12 @@ class VectorStore:
         version = metadata.get("version")
         if not isinstance(version, (str, int, float, bool)):
             version = "unknown"
-        return {
+        normalized = {
+            key: value
+            for key, value in metadata.items()
+            if isinstance(value, (str, int, float, bool))
+        }
+        normalized.update({
             "source": str(metadata.get("source") or ""),
             "source_id": str(metadata.get("source_id") or chunk.source_id),
             "title": str(metadata.get("title") or chunk.title),
@@ -34,7 +39,20 @@ class VectorStore:
             "space_key": str(metadata.get("space_key") or ""),
             "version": version,
             "chunk_index": int(metadata.get("chunk_index", chunk.chunk_index)),
-        }
+        })
+        return normalized
+
+    def delete_source(self, source_id: str) -> None:
+        if source_id:
+            self.collection.delete(where={"source_id": source_id})
+
+    def replace_source_chunks(
+        self, chunks: list[TextChunk], embeddings: list[list[float]]
+    ) -> None:
+        if not chunks:
+            return
+        self.delete_source(chunks[0].source_id)
+        self.upsert_chunks(chunks, embeddings)
 
     def upsert_chunks(
         self, chunks: list[TextChunk], embeddings: list[list[float]]

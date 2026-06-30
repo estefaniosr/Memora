@@ -3,15 +3,13 @@
 from __future__ import annotations
 
 from typing import Any
-from urllib.parse import quote
-
-from app.config import Settings, load_settings
+from app.config import ConfigurationError, Settings, load_settings
 from connectors.confluence_client import ConfluenceClient
-from extractors.html_cleaner import clean_confluence_html
 from indexing.embeddings import EmbeddingModel
 from indexing.indexer import DocumentIndexer
 from indexing.vector_store import VectorStore
 from llm import LLMProvider, create_llm_provider
+from models.confluence_document import build_confluence_document
 from models.source_document import SourceDocument
 from rag.answer_generator import AnswerGenerator
 from rag.retriever import RagRetriever
@@ -81,46 +79,44 @@ class MemoraService:
         page = search_result.get("content") or search_result
         return str(page.get("id", "")), str(page.get("title", "Sem título"))
 
-    def _build_page_url(self, page_id: str) -> str:
-        return (
-            f"{self.settings.confluence_base_url.rstrip('/')}"
-            f"/pages/viewpage.action?pageId={quote(page_id)}"
-        )
-
     def _source_document(
         self, page: dict[str, Any], fallback_title: str
     ) -> SourceDocument:
-        page_id = str(page.get("id", ""))
-        return SourceDocument(
-            source="confluence",
-            source_id=page_id,
-            title=str(page.get("title") or fallback_title),
-            url=self._build_page_url(page_id),
-            content=clean_confluence_html(
-                str(page.get("body", {}).get("storage", {}).get("value", ""))
-            ),
-            space_key=page.get("space", {}).get("key"),
-            version=page.get("version", {}).get("number"),
-            metadata={"content_type": page.get("type")},
+        return build_confluence_document(
+            page,
+            base_url=self.settings.confluence_base_url,
+            fallback_title=fallback_title,
         )
 
     def sync_confluence(self, limit: int = 50) -> dict[str, int]:
         if limit < 1:
             raise ValueError("O limite de páginas deve ser maior que zero.")
+        missing = [
+            name
+            for name, value in (
+                ("CONFLUENCE_BASE_URL", self.settings.confluence_base_url),
+                ("CONFLUENCE_EMAIL", self.settings.confluence_email),
+                ("CONFLUENCE_API_TOKEN", self.settings.confluence_api_token),
+                ("CONFLUENCE_SPACE_KEY", self.settings.confluence_space_key),
+            )
+            if not value
+        ]
+        if missing:
+            raise ConfigurationError(
+                "Variáveis de ambiente obrigatórias para sincronizar o Confluence "
+                "ausentes: " + ", ".join(missing)
+            )
 
         client = ConfluenceClient(
             base_url=self.settings.confluence_base_url,
             email=self.settings.confluence_email,
             api_token=self.settings.confluence_api_token,
         )
-        payload = client.search_pages(
-            self.settings.confluence_space_key, limit=limit
+        search_results = client.get_all_pages(
+            self.settings.confluence_space_key,
+            page_size=min(25, limit),
+            max_pages=limit,
         )
-        search_results = payload.get("results", [])
-        if not isinstance(search_results, list):
-            raise MemoraServiceError(
-                "O Confluence retornou um formato inesperado para as páginas."
-            )
         if not search_results:
             return {
                 "pages_found": 0,

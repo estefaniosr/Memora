@@ -57,3 +57,19 @@ def test_get_all_pages_ignores_duplicate_ids(monkeypatch: Any) -> None:
     pages = client.get_all_pages("SPACE", page_size=2)
 
     assert [page["content"]["id"] for page in pages] == ["1", "2", "3"]
+
+
+def test_get_all_pages_honors_total_limit(monkeypatch: Any) -> None:
+    client = ConfluenceClient("https://example.atlassian.net/wiki", "email", "token")
+    monkeypatch.setattr(
+        client,
+        "search_pages",
+        lambda space_key, limit=10, start=0: {
+            "results": [{"content": {"id": str(index)}} for index in range(5)],
+            "_links": {"next": "/next"},
+        },
+    )
+
+    pages = client.get_all_pages("SPACE", page_size=5, max_pages=3)
+
+    assert [page["content"]["id"] for page in pages] == ["0", "1", "2"]

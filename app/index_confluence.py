@@ -2,8 +2,6 @@
 
 from __future__ import annotations
 
-from urllib.parse import quote
-
 from rich.console import Console
 
 from app.config import ConfigurationError, load_settings
@@ -13,13 +11,8 @@ from services.memora_service import MemoraService, MemoraServiceError
 console = Console()
 
 
-def build_page_url(base_url: str, page_id: str) -> str:
-    """Build a stable Confluence reference URL from a page ID."""
-    return f"{base_url.rstrip('/')}/pages/viewpage.action?pageId={quote(page_id)}"
-
-
 def run() -> None:
-    settings = load_settings()
+    settings = load_settings(require_confluence=True)
     console.print(
         f"[bold green]Memora[/bold green] — indexando o espaço "
         f"[cyan]{settings.confluence_space_key}[/cyan]"

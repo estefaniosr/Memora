@@ -87,11 +87,13 @@ class ConfluenceClient:
         )
 
     def get_all_pages(
-        self, space_key: str, page_size: int = 25
+        self, space_key: str, page_size: int = 25, max_pages: int | None = None
     ) -> list[dict[str, Any]]:
         """Fetch every page from a space, following cursor pagination."""
         if page_size < 1:
             raise ValueError("O tamanho da página deve ser maior que zero.")
+        if max_pages is not None and max_pages < 1:
+            raise ValueError("O limite de páginas deve ser maior que zero.")
 
         pages: list[dict[str, Any]] = []
         seen_ids: set[str] = set()
@@ -111,6 +113,8 @@ class ConfluenceClient:
                 if content_id:
                     seen_ids.add(content_id)
                 pages.append(result)
+                if max_pages is not None and len(pages) >= max_pages:
+                    return pages
 
             next_link = (payload.get("_links") or {}).get("next")
             if not next_link or next_link in seen_next_links:

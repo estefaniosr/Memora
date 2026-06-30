@@ -158,6 +158,7 @@ A sidebar mostra o espaço, os modelos e a quantidade de chunks, mas nunca exibe
 ## Testes
 
 ```powershell
+pip install -r requirements-dev.txt
 pytest
 ```
 
