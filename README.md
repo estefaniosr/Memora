@@ -2,7 +2,7 @@
 
 Memora é uma aplicação de IA/RAG para preservar e reaproveitar a memória corporativa de projetos. A visão do produto é conectar fontes como o Confluence, indexar documentação histórica e ajudar equipes a encontrar soluções técnicas semelhantes a partir de novas anotações.
 
-Nesta versão, o projeto extrai páginas do Confluence Cloud, converte o HTML para texto, cria embeddings multilíngues e persiste uma base vetorial no ChromaDB. No terminal, é possível fazer busca semântica ou gerar uma análise RAG de reaproveitamento técnico com Ollama, OpenAI ou Gemini. Ainda não há interface web.
+Nesta versão, o projeto extrai páginas do Confluence Cloud, converte o HTML para texto, cria embeddings multilíngues e persiste uma base vetorial no ChromaDB. É possível fazer busca semântica e gerar análises RAG com Ollama, OpenAI ou Gemini pelo terminal ou por uma interface web local em Streamlit.
 
 ## Requisitos
 
@@ -119,6 +119,42 @@ GEMINI_MODEL=seu-modelo-aqui
 
 Somente as credenciais do provider selecionado são obrigatórias. Nunca publique o `.env`.
 
+## Interface Web
+
+1. Instale as dependências e configure o `.env` conforme as seções anteriores:
+
+```powershell
+pip install -r requirements.txt
+```
+
+2. Se desejar, indexe os documentos antes de abrir a interface:
+
+```powershell
+python -m app.index_confluence
+```
+
+Também é possível fazer essa sincronização dentro da própria interface.
+
+3. Inicie o Streamlit na raiz do projeto:
+
+```powershell
+python -m streamlit run ui/streamlit_app.py
+```
+
+Se o executável do Streamlit estiver disponível no `PATH`, o comando equivalente é:
+
+```powershell
+streamlit run ui/streamlit_app.py
+```
+
+Use as abas nesta ordem sugerida:
+
+- **Sincronizar Confluence** para atualizar o ChromaDB;
+- **Busca semântica** para validar a recuperação sem consumir um LLM;
+- **Analisar reunião** para gerar a análise de reaproveitamento e consultar as fontes.
+
+A sidebar mostra o espaço, os modelos e a quantidade de chunks, mas nunca exibe tokens ou API keys. Se o `.env` mudar enquanto a aplicação estiver aberta, reinicie o Streamlit para recriar o serviço em cache.
+
 ## Testes
 
 ```powershell
@@ -135,11 +171,13 @@ indexing/     chunks, embeddings e persistência vetorial
 llm/          adapters e factory dos providers generativos
 models/       modelos de domínio normalizados
 rag/          recuperação, prompt e geração de respostas
+services/     orquestração reutilizada por CLI e interface
 tests/        testes automatizados
+ui/           aplicação e componentes Streamlit
 ```
 
 ## Próximos passos planejados
 
 - Extrair anexos do Confluence
-- Criar uma interface com Streamlit
+- Adicionar autenticação e preparar deploy
 - Adicionar avaliações automatizadas da qualidade do RAG

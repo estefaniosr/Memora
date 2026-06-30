@@ -2,12 +2,21 @@
 
 from __future__ import annotations
 
+from dataclasses import dataclass
+
 from rich.console import Console
 
 from indexing.chunker import chunk_text
 from indexing.embeddings import EmbeddingModel
 from indexing.vector_store import VectorStore
 from models.source_document import SourceDocument
+
+
+@dataclass(frozen=True, slots=True)
+class IndexingStats:
+    documents_processed: int
+    chunks_indexed: int
+    total_chunks: int
 
 
 class DocumentIndexer:
@@ -21,7 +30,7 @@ class DocumentIndexer:
         self.vector_store = vector_store
         self.console = console or Console()
 
-    def index_documents(self, documents: list[SourceDocument]) -> None:
+    def index_documents(self, documents: list[SourceDocument]) -> IndexingStats:
         total_chunks = 0
 
         for position, document in enumerate(documents, start=1):
@@ -58,6 +67,10 @@ class DocumentIndexer:
         self.console.print("\n[bold green]Indexação concluída.[/bold green]")
         self.console.print(f"Documentos processados: [bold]{len(documents)}[/bold]")
         self.console.print(f"Chunks criados nesta execução: [bold]{total_chunks}[/bold]")
-        self.console.print(
-            f"Registros atuais no ChromaDB: [bold]{self.vector_store.count()}[/bold]"
+        total_records = self.vector_store.count()
+        self.console.print(f"Registros atuais no ChromaDB: [bold]{total_records}[/bold]")
+        return IndexingStats(
+            documents_processed=len(documents),
+            chunks_indexed=total_chunks,
+            total_chunks=total_records,
         )
