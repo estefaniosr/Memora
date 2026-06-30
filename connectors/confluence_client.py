@@ -72,11 +72,53 @@ class ConfluenceClient:
     def list_spaces(self) -> dict[str, Any]:
         return self._get("/rest/api/space")
 
-    def search_pages(self, space_key: str, limit: int = 10) -> dict[str, Any]:
+    def search_pages(
+        self, space_key: str, limit: int = 10, start: int = 0
+    ) -> dict[str, Any]:
         if limit < 1:
             raise ValueError("O limite deve ser maior que zero.")
-        cql = f'space="{space_key}" AND type=page'
-        return self._get("/rest/api/search", params={"cql": cql, "limit": limit})
+        if start < 0:
+            raise ValueError("A posição inicial não pode ser negativa.")
+        # Stable ordering prevents records from moving between pagination batches.
+        cql = f'space="{space_key}" AND type=page ORDER BY id'
+        return self._get(
+            "/rest/api/search",
+            params={"cql": cql, "limit": limit, "start": start},
+        )
+
+    def get_all_pages(
+        self, space_key: str, page_size: int = 25
+    ) -> list[dict[str, Any]]:
+        """Fetch every page from a space, following cursor pagination."""
+        if page_size < 1:
+            raise ValueError("O tamanho da página deve ser maior que zero.")
+
+        pages: list[dict[str, Any]] = []
+        seen_ids: set[str] = set()
+        seen_next_links: set[str] = set()
+        payload = self.search_pages(space_key, limit=page_size)
+
+        while True:
+            batch = payload.get("results", [])
+            if not isinstance(batch, list) or not batch:
+                break
+
+            for result in batch:
+                content = result.get("content") or result
+                content_id = str(content.get("id", ""))
+                if content_id and content_id in seen_ids:
+                    continue
+                if content_id:
+                    seen_ids.add(content_id)
+                pages.append(result)
+
+            next_link = (payload.get("_links") or {}).get("next")
+            if not next_link or next_link in seen_next_links:
+                break
+            seen_next_links.add(next_link)
+            payload = self._get(next_link)
+
+        return pages
 
     def get_page_content(self, page_id: str) -> dict[str, Any]:
         return self._get(

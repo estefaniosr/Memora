@@ -34,7 +34,6 @@ CONFLUENCE_API_TOKEN=seu-token-aqui
 CONFLUENCE_SPACE_KEY=PROJECT-KB
 ```
 
-> Nunca envie o arquivo `.env` ao GitHub. Ele contém credenciais e já está listado no `.gitignore`.
 
 ## Execução
 
@@ -44,7 +43,7 @@ Na raiz do projeto, execute:
 python -m app.main
 ```
 
-O terminal mostrará os espaços disponíveis e uma prévia limpa das três primeiras páginas encontradas no espaço configurado. Falhas de configuração, conexão e HTTP são apresentadas com mensagens claras; o token nunca é exibido.
+O terminal mostrará os espaços disponíveis e uma prévia limpa de todas as páginas encontradas no espaço configurado. A busca percorre automaticamente todas as páginas de resultados da API. Falhas de configuração, conexão e HTTP são apresentadas com mensagens claras; o token nunca é exibido.
 
 ## Testes
 

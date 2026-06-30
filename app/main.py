@@ -76,12 +76,14 @@ def run() -> None:
     console.print(
         f"\nBuscando páginas no espaço [bold cyan]{settings.confluence_space_key}[/bold cyan]..."
     )
-    results = client.search_pages(settings.confluence_space_key).get("results", [])
+    results = client.get_all_pages(settings.confluence_space_key)
     if not results:
         console.print("[yellow]Nenhuma página encontrada nesse espaço.[/yellow]")
         return
 
-    for search_result in results[:3]:
+    console.print(f"[green]{len(results)} página(s) encontrada(s).[/green]\n")
+
+    for search_result in results:
         page_id, search_title = _page_summary(search_result)
         if not page_id:
             console.print("[yellow]Resultado ignorado: página sem ID.[/yellow]")
