@@ -7,6 +7,12 @@ from dataclasses import dataclass
 
 from dotenv import load_dotenv
 
+DEFAULT_EMBEDDING_MODEL = (
+    "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
+)
+DEFAULT_CHROMA_DB_PATH = "./chroma_db"
+DEFAULT_CHROMA_COLLECTION_NAME = "memora_projects"
+
 
 class ConfigurationError(ValueError):
     """Raised when required application configuration is missing."""
@@ -18,6 +24,9 @@ class Settings:
     confluence_email: str
     confluence_api_token: str
     confluence_space_key: str
+    embedding_model: str
+    chroma_db_path: str
+    chroma_collection_name: str
 
 
 def load_settings() -> Settings:
@@ -43,4 +52,12 @@ def load_settings() -> Settings:
         confluence_email=values["CONFLUENCE_EMAIL"],
         confluence_api_token=values["CONFLUENCE_API_TOKEN"],
         confluence_space_key=values["CONFLUENCE_SPACE_KEY"],
+        embedding_model=os.getenv("EMBEDDING_MODEL", DEFAULT_EMBEDDING_MODEL).strip()
+        or DEFAULT_EMBEDDING_MODEL,
+        chroma_db_path=os.getenv("CHROMA_DB_PATH", DEFAULT_CHROMA_DB_PATH).strip()
+        or DEFAULT_CHROMA_DB_PATH,
+        chroma_collection_name=os.getenv(
+            "CHROMA_COLLECTION_NAME", DEFAULT_CHROMA_COLLECTION_NAME
+        ).strip()
+        or DEFAULT_CHROMA_COLLECTION_NAME,
     )
