@@ -1,123 +1,1042 @@
 <!doctype html>
 <html lang="pt-BR" class="h-full antialiased">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="Memora — memória corporativa inteligente">
-  <title>Memora — Memória corporativa inteligente</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0" rel="stylesheet">
-  <script src="https://cdn.tailwindcss.com"></script>
-  <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: { extend: {
-        fontFamily: { sans: ['DM Sans', 'sans-serif'] },
-        colors: { ink: '#172033', brand: '#6d7ff2', violet: '#a978ed' },
-        boxShadow: { soft: '0 16px 45px -24px rgba(54, 65, 105, .28)' }
-      }}
-    }
-  </script>
-  <style>
-    [x-cloak]{display:none!important}.material-symbols-rounded{font-size:20px;line-height:1}
-    *{scrollbar-width:thin;scrollbar-color:#d8dce8 transparent}
-    .soft-ring{box-shadow:0 0 0 1px rgba(109,127,242,.14),0 20px 60px -35px rgba(109,127,242,.55)}
-    .aurora:before{content:"";position:absolute;inset:-80px;pointer-events:none;background:radial-gradient(circle at 45% 35%,rgba(109,127,242,.10),transparent 29%),radial-gradient(circle at 60% 48%,rgba(169,120,237,.08),transparent 26%);filter:blur(20px)}
-    .dark .aurora:before{opacity:.5}.focusable:focus-visible{outline:3px solid rgba(109,127,242,.35);outline-offset:2px}
-  </style>
-</head>
-<body class="h-full bg-[#f9fafc] text-slate-700 dark:bg-[#111522] dark:text-slate-200" x-data="memoraApp()" x-init="init()" @keydown.escape="mobileOpen=false; modal=null">
-  <div class="min-h-full lg:flex">
-    <div x-show="mobileOpen" x-transition.opacity x-cloak class="fixed inset-0 z-40 bg-slate-950/30 backdrop-blur-sm lg:hidden" @click="mobileOpen=false"></div>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="Memora — memória corporativa inteligente"
+    />
+    <title>Memora — Memória corporativa inteligente</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,400,0,0"
+      rel="stylesheet"
+    />
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            fontFamily: { sans: ["DM Sans", "sans-serif"] },
+            colors: { ink: "#172033", brand: "#6d7ff2", violet: "#a978ed" },
+            boxShadow: { soft: "0 16px 45px -24px rgba(54, 65, 105, .28)" },
+          },
+        },
+      };
+    </script>
+    <style>
+      [x-cloak] {
+        display: none !important;
+      }
+      .material-symbols-rounded {
+        font-size: 20px;
+        line-height: 1;
+      }
+      * {
+        scrollbar-width: thin;
+        scrollbar-color: #d8dce8 transparent;
+      }
+      .soft-ring {
+        box-shadow:
+          0 0 0 1px rgba(109, 127, 242, 0.14),
+          0 20px 60px -35px rgba(109, 127, 242, 0.55);
+      }
+      .aurora:before {
+        content: "";
+        position: absolute;
+        inset: -80px;
+        pointer-events: none;
+        background:
+          radial-gradient(
+            circle at 45% 35%,
+            rgba(109, 127, 242, 0.1),
+            transparent 29%
+          ),
+          radial-gradient(
+            circle at 60% 48%,
+            rgba(169, 120, 237, 0.08),
+            transparent 26%
+          );
+        filter: blur(20px);
+      }
+      .dark .aurora:before {
+        opacity: 0.5;
+      }
+      .focusable:focus-visible {
+        outline: 3px solid rgba(109, 127, 242, 0.35);
+        outline-offset: 2px;
+      }
+    </style>
+  </head>
+  <body
+    class="h-full bg-[#f9fafc] text-slate-700 dark:bg-[#111522] dark:text-slate-200"
+    x-data="memoraApp()"
+    x-init="init()"
+    @keydown.escape="mobileOpen=false; modal=null"
+  >
+    <div class="min-h-full lg:flex">
+      <div
+        x-show="mobileOpen"
+        x-transition.opacity
+        x-cloak
+        class="fixed inset-0 z-40 bg-slate-950/30 backdrop-blur-sm lg:hidden"
+        @click="mobileOpen=false"
+      ></div>
 
-    <aside :class="[sidebarOpen ? 'lg:w-72' : 'lg:w-[88px]', mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0']" class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-slate-200/80 bg-white/95 px-4 py-5 backdrop-blur-xl transition-all duration-300 dark:border-white/10 dark:bg-[#151a29]/95">
-      <div class="flex h-12 items-center gap-3 px-2">
-        <svg class="h-10 w-10 shrink-0" viewBox="0 0 48 48" fill="none" aria-label="Logo Memora">
-          <defs><linearGradient id="m" x1="5" y1="8" x2="43" y2="40"><stop stop-color="#72AEFF"/><stop offset="1" stop-color="#B16FE8"/></linearGradient></defs>
-          <path d="M6 38V17c0-7 8-10 13-5l5 5 5-5c5-5 13-2 13 5v21" stroke="url(#m)" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>
-          <circle cx="16" cy="27" r="3.5" fill="#7FA7FA"/><circle cx="32" cy="27" r="3.5" fill="#AA79EB"/><path d="M16 27c2 8 14 8 16 0M16 27v10M32 27v10" stroke="url(#m)" stroke-width="3" stroke-linecap="round"/>
-        </svg>
-        <div x-show="sidebarOpen" x-transition.opacity class="min-w-0">
-          <p class="text-xl font-bold tracking-tight text-ink dark:text-white">Memora</p>
-          <p class="truncate text-[11px] text-slate-400">Memória corporativa inteligente</p>
-        </div>
-        <button class="focusable ml-auto rounded-xl p-2 text-slate-400 hover:bg-slate-100 lg:hidden dark:hover:bg-white/5" @click="mobileOpen=false" aria-label="Fechar menu"><span class="material-symbols-rounded">close</span></button>
-      </div>
-
-      <nav class="mt-8 space-y-1.5" aria-label="Navegação principal">
-        <template x-for="item in navigation" :key="item.id">
-          <button @click="go(item.id)" :title="!sidebarOpen ? item.label : ''" :class="currentPage===item.id ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-400/10 dark:text-indigo-300' : 'text-slate-500 hover:bg-slate-50 hover:text-ink dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white'" class="focusable flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium transition">
-            <span class="material-symbols-rounded shrink-0" x-text="item.icon"></span><span x-show="sidebarOpen" x-text="item.label"></span>
+      <aside
+        :class="[sidebarOpen ? 'lg:w-72' : 'lg:w-[88px]', mobileOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0']"
+        class="fixed inset-y-0 left-0 z-50 flex w-72 flex-col border-r border-slate-200/80 bg-white/95 px-4 py-5 backdrop-blur-xl transition-all duration-300 dark:border-white/10 dark:bg-[#151a29]/95"
+      >
+        <div class="flex h-12 items-center gap-3 px-2">
+          <svg
+            class="h-10 w-10 shrink-0"
+            viewBox="0 0 48 48"
+            fill="none"
+            aria-label="Logo Memora"
+          >
+            <defs>
+              <linearGradient id="m" x1="5" y1="8" x2="43" y2="40">
+                <stop stop-color="#72AEFF" />
+                <stop offset="1" stop-color="#B16FE8" />
+              </linearGradient>
+            </defs>
+            <path
+              d="M6 38V17c0-7 8-10 13-5l5 5 5-5c5-5 13-2 13 5v21"
+              stroke="url(#m)"
+              stroke-width="5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            />
+            <circle cx="16" cy="27" r="3.5" fill="#7FA7FA" />
+            <circle cx="32" cy="27" r="3.5" fill="#AA79EB" />
+            <path
+              d="M16 27c2 8 14 8 16 0M16 27v10M32 27v10"
+              stroke="url(#m)"
+              stroke-width="3"
+              stroke-linecap="round"
+            />
+          </svg>
+          <div x-show="sidebarOpen" x-transition.opacity class="min-w-0">
+            <p
+              class="text-xl font-bold tracking-tight text-ink dark:text-white"
+            >
+              Memora
+            </p>
+            <p class="truncate text-[11px] text-slate-400">
+              Memória corporativa inteligente
+            </p>
+          </div>
+          <button
+            class="focusable ml-auto rounded-xl p-2 text-slate-400 hover:bg-slate-100 lg:hidden dark:hover:bg-white/5"
+            @click="mobileOpen=false"
+            aria-label="Fechar menu"
+          >
+            <span class="material-symbols-rounded">close</span>
           </button>
-        </template>
-      </nav>
-
-      <div class="mt-auto">
-        <button @click="sidebarOpen=!sidebarOpen" class="focusable hidden w-full items-center justify-center gap-2 rounded-xl py-2 text-xs text-slate-400 hover:bg-slate-50 lg:flex dark:hover:bg-white/5"><span class="material-symbols-rounded" x-text="sidebarOpen?'left_panel_close':'left_panel_open'"></span><span x-show="sidebarOpen">Recolher menu</span></button>
-      </div>
-    </aside>
-
-    <div :class="sidebarOpen ? 'lg:pl-72' : 'lg:pl-[88px]'" class="min-w-0 flex-1 transition-all duration-300">
-      <header class="sticky top-0 z-30 flex h-20 items-center border-b border-slate-200/70 bg-[#f9fafc]/85 px-5 backdrop-blur-xl md:px-8 dark:border-white/10 dark:bg-[#111522]/85">
-        <button class="focusable mr-3 rounded-xl p-2 hover:bg-white lg:hidden dark:hover:bg-white/5" @click="mobileOpen=true" aria-label="Abrir menu"><span class="material-symbols-rounded">menu</span></button>
-        <div><h1 class="font-semibold text-ink dark:text-white" x-text="pageMeta.title"></h1><p class="hidden text-xs text-slate-400 sm:block" x-text="pageMeta.caption"></p></div>
-        <div class="ml-auto flex items-center gap-2">
-          <button @click="darkMode=!darkMode; applyTheme()" class="focusable rounded-xl border border-slate-200 bg-white p-2.5 text-slate-500 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-300" :aria-label="darkMode?'Ativar modo claro':'Ativar modo escuro'"><span class="material-symbols-rounded" x-text="darkMode?'light_mode':'dark_mode'"></span></button>
-          <div class="ml-1 grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 text-sm font-bold text-indigo-700 dark:from-indigo-400/20 dark:to-purple-400/20 dark:text-indigo-300">ES</div>
         </div>
-      </header>
 
-      <main class="relative mx-auto max-w-[1440px] px-5 py-8 md:px-8 lg:px-10 lg:py-10">
-        <!-- Visão geral -->
-        <section x-show="currentPage==='overview'" x-transition.opacity>
-          <div class="relative overflow-hidden rounded-[32px] border border-slate-200/70 bg-white px-7 py-10 shadow-soft md:px-11 dark:border-white/10 dark:bg-white/[.035]">
-            <div class="relative max-w-3xl"><span class="mb-5 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 dark:bg-indigo-400/10 dark:text-indigo-300"><span class="material-symbols-rounded text-base">auto_awesome</span>Base pronta para consulta</span><h2 class="text-3xl font-bold tracking-tight text-ink md:text-4xl dark:text-white">Bem-vindo ao Memora</h2><p class="mt-4 max-w-2xl text-base leading-7 text-slate-500 dark:text-slate-400">Recupere conhecimento de projetos anteriores, encontre demandas semelhantes e acelere novas entregas com rastreabilidade.</p><div class="mt-7 flex flex-wrap gap-3"><button @click="go('analyze')" class="focusable rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 hover:bg-slate-800 dark:bg-indigo-500 dark:hover:bg-indigo-400"><span class="inline-flex items-center gap-2"><span class="material-symbols-rounded">auto_awesome</span>Analisar demanda</span></button><button @click="go('search')" class="focusable rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-ink hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-white"><span class="inline-flex items-center gap-2"><span class="material-symbols-rounded">search</span>Buscar conhecimento</span></button></div></div>
+        <nav class="mt-8 space-y-1.5" aria-label="Navegação principal">
+          <template x-for="item in navigation" :key="item.id">
+            <button
+              @click="go(item.id)"
+              :title="!sidebarOpen ? item.label : ''"
+              :class="currentPage===item.id ? 'bg-indigo-50 text-indigo-700 dark:bg-indigo-400/10 dark:text-indigo-300' : 'text-slate-500 hover:bg-slate-50 hover:text-ink dark:text-slate-400 dark:hover:bg-white/5 dark:hover:text-white'"
+              class="focusable flex w-full items-center gap-3 rounded-2xl px-3 py-3 text-sm font-medium transition"
+            >
+              <span
+                class="material-symbols-rounded shrink-0"
+                x-text="item.icon"
+              ></span
+              ><span x-show="sidebarOpen" x-text="item.label"></span>
+            </button>
+          </template>
+        </nav>
+
+        <div class="mt-auto">
+          <button
+            @click="sidebarOpen=!sidebarOpen"
+            class="focusable hidden w-full items-center justify-center gap-2 rounded-xl py-2 text-xs text-slate-400 hover:bg-slate-50 lg:flex dark:hover:bg-white/5"
+          >
+            <span
+              class="material-symbols-rounded"
+              x-text="sidebarOpen?'left_panel_close':'left_panel_open'"
+            ></span
+            ><span x-show="sidebarOpen">Recolher menu</span>
+          </button>
+        </div>
+      </aside>
+
+      <div
+        :class="sidebarOpen ? 'lg:pl-72' : 'lg:pl-[88px]'"
+        class="min-w-0 flex-1 transition-all duration-300"
+      >
+        <header
+          class="sticky top-0 z-30 flex h-20 items-center border-b border-slate-200/70 bg-[#f9fafc]/85 px-5 backdrop-blur-xl md:px-8 dark:border-white/10 dark:bg-[#111522]/85"
+        >
+          <button
+            class="focusable mr-3 rounded-xl p-2 hover:bg-white lg:hidden dark:hover:bg-white/5"
+            @click="mobileOpen=true"
+            aria-label="Abrir menu"
+          >
+            <span class="material-symbols-rounded">menu</span>
+          </button>
+          <div>
+            <h1
+              class="font-semibold text-ink dark:text-white"
+              x-text="pageMeta.title"
+            ></h1>
+            <p
+              class="hidden text-xs text-slate-400 sm:block"
+              x-text="pageMeta.caption"
+            ></p>
           </div>
-          <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><template x-for="metric in metrics" :key="metric.label"><article class="rounded-3xl border border-slate-200/70 bg-white p-5 shadow-soft dark:border-white/10 dark:bg-white/[.035]"><div class="flex items-center justify-between"><span class="grid h-10 w-10 place-items-center rounded-2xl bg-slate-50 text-indigo-600 dark:bg-white/5 dark:text-indigo-300"><span class="material-symbols-rounded" x-text="metric.icon"></span></span><span class="text-xs text-emerald-600" x-text="metric.detail"></span></div><p class="mt-5 text-2xl font-bold text-ink dark:text-white" x-text="metric.value"></p><p class="mt-1 text-sm text-slate-400" x-text="metric.label"></p></article></template></div>
-          <div class="mt-6 grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
-            <article class="rounded-3xl border border-slate-200/70 bg-white p-6 dark:border-white/10 dark:bg-white/[.035]"><div class="flex items-center justify-between"><div><h3 class="font-semibold text-ink dark:text-white">Status das integrações</h3><p class="mt-1 text-sm text-slate-400">Estado informado pelo backend</p></div><span class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-white/5 dark:text-slate-300" x-text="services.filter(service=>service.active).length+' de '+services.length+' ativos'"></span></div><div class="mt-5 grid gap-3 sm:grid-cols-2"><template x-for="service in services" :key="service.name"><div class="flex items-center gap-3 rounded-2xl border border-slate-100 p-4 dark:border-white/10"><span :class="service.active?'bg-emerald-50 text-emerald-600 dark:bg-emerald-400/10':'bg-amber-50 text-amber-600 dark:bg-amber-400/10'" class="grid h-9 w-9 place-items-center rounded-xl"><span class="material-symbols-rounded" x-text="service.active?'check_circle':'error'"></span></span><div><p class="text-sm font-semibold text-ink dark:text-white" x-text="service.name"></p><p class="text-xs text-slate-400" x-text="service.status"></p></div></div></template></div></article>
-            <article class="rounded-3xl border border-slate-200/70 bg-white p-6 dark:border-white/10 dark:bg-white/[.035]"><h3 class="font-semibold text-ink dark:text-white">Atividade desta sessão</h3><div x-show="activities.length" class="mt-5 space-y-5"><template x-for="activity in activities" :key="activity.id"><div class="flex gap-3"><span class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-indigo-400 ring-4 ring-indigo-50 dark:ring-indigo-400/10"></span><div><p class="text-sm text-slate-600 dark:text-slate-300" x-text="activity.text"></p><p class="mt-1 text-xs text-slate-400" x-text="activity.time"></p></div></div></template></div><div x-show="!activities.length" class="mt-8 text-center"><span class="material-symbols-rounded text-3xl text-slate-300 dark:text-slate-600">history</span><p class="mt-2 text-sm text-slate-400">Nenhuma atividade nesta sessão.</p></div></article>
+          <div class="ml-auto flex items-center gap-2">
+            <button
+              @click="darkMode=!darkMode; applyTheme()"
+              class="focusable rounded-xl border border-slate-200 bg-white p-2.5 text-slate-500 shadow-sm dark:border-white/10 dark:bg-white/5 dark:text-slate-300"
+              :aria-label="darkMode?'Ativar modo claro':'Ativar modo escuro'"
+            >
+              <span
+                class="material-symbols-rounded"
+                x-text="darkMode?'light_mode':'dark_mode'"
+              ></span>
+            </button>
+            <div
+              class="ml-1 grid h-10 w-10 place-items-center rounded-full bg-gradient-to-br from-indigo-100 to-purple-100 text-sm font-bold text-indigo-700 dark:from-indigo-400/20 dark:to-purple-400/20 dark:text-indigo-300"
+            >
+              ES
+            </div>
           </div>
-        </section>
+        </header>
 
-        <!-- Analisar -->
-        <section x-show="currentPage==='analyze'" x-transition.opacity x-cloak>
-          <div class="aurora relative mx-auto max-w-5xl py-8 text-center"><div class="relative"><span class="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 dark:text-indigo-300"><span class="material-symbols-rounded">auto_awesome</span>Análise assistida por evidências</span><h2 class="mt-3 text-3xl font-bold tracking-tight text-ink md:text-4xl dark:text-white">O que precisamos construir?</h2><p class="mx-auto mt-3 max-w-2xl text-slate-500 dark:text-slate-400">Cole as anotações da reunião. O Memora encontrará projetos semelhantes e oportunidades reais de reaproveitamento.</p></div></div>
-          <div class="soft-ring mx-auto max-w-5xl rounded-[30px] bg-white p-3 dark:bg-[#1a2030]">
-            <textarea x-model="analysisInput" maxlength="5000" rows="7" class="focusable w-full resize-none rounded-3xl border-0 bg-transparent px-5 py-4 text-base leading-7 text-ink placeholder:text-slate-400 focus:outline-none dark:text-white" placeholder="Exemplo: O cliente precisa de um portal web B2B com login, dashboard, permissões por perfil e integração com API externa..."></textarea>
-            <div class="flex flex-wrap items-center gap-2 border-t border-slate-100 px-3 pt-3 dark:border-white/10"><button @click="advanced=!advanced" class="focusable inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50 dark:hover:bg-white/5"><span class="material-symbols-rounded">tune</span>Opções avançadas<span class="material-symbols-rounded text-base" x-text="advanced?'expand_less':'expand_more'"></span></button><span class="ml-auto text-xs text-slate-400" x-text="analysisInput.length.toLocaleString('pt-BR')+' / 5.000'"></span><button @click="analysisInput=''; analysisResult=false" class="focusable rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-500 hover:bg-slate-50 dark:hover:bg-white/5">Limpar</button><button @click="runAnalysis()" :disabled="!analysisInput.trim() || analyzing" class="focusable inline-flex items-center gap-2 rounded-2xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 disabled:cursor-not-allowed disabled:opacity-40"><span class="material-symbols-rounded" x-text="analyzing?'progress_activity':'arrow_upward'"></span><span x-text="analyzing?'Analisando...':'Analisar demanda'"></span></button></div>
-            <div x-show="advanced" x-collapse class="grid gap-4 border-t border-slate-100 px-5 py-5 sm:grid-cols-2 lg:grid-cols-4 dark:border-white/10"><label class="text-xs text-slate-500">Trechos recuperados<input x-model="analysisOptions.topK" type="number" min="3" max="15" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-white/5"></label><label class="text-xs text-slate-500">Provider<select x-model="settings.provider" @change="selectDefaultModel()" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-[#202636]"><option>Ollama</option><option>OpenAI</option><option>Gemini</option></select></label><label class="text-xs text-slate-500">Modelo<select x-model="settings.model" :disabled="!availableModels[settings.provider].length" class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm disabled:cursor-not-allowed disabled:text-slate-400 dark:border-white/10 dark:bg-[#202636]"><option x-show="!availableModels[settings.provider].length" value="">Nenhum modelo disponível</option><template x-for="model in availableModels[settings.provider]" :key="model"><option :value="model" x-text="model"></option></template></select></label><label class="text-xs text-slate-500">Similaridade mínima<input x-model="analysisOptions.similarity" type="range" min="50" max="95" class="mt-5 w-full accent-indigo-500"><span x-text="analysisOptions.similarity+'%'"></span></label></div>
-          </div>
-          <div x-show="analyzing" x-transition class="mx-auto mt-8 max-w-3xl rounded-3xl border border-slate-200/70 bg-white p-6 dark:border-white/10 dark:bg-white/[.035]"><div class="mb-5 flex items-center justify-between"><p class="font-semibold text-ink dark:text-white">Construindo análise</p><span class="text-sm text-indigo-600" x-text="analysisProgress+'%'"></span></div><div class="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10"><div class="h-full rounded-full bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-500" :style="`width:${analysisProgress}%`"></div></div><div class="mt-6 grid gap-4 sm:grid-cols-4"><template x-for="(step,i) in analysisSteps" :key="step"><div :class="i<=analysisStep?'text-indigo-600 dark:text-indigo-300':'text-slate-300 dark:text-slate-600'" class="text-center"><span class="material-symbols-rounded" x-text="i<analysisStep?'check_circle':i===analysisStep?'progress_activity':'radio_button_unchecked'"></span><p class="mt-2 text-xs" x-text="step"></p></div></template></div></div>
-          <div x-show="analysisResult && !analyzing" x-transition class="mx-auto mt-12 max-w-5xl">
-            <div class="flex flex-wrap items-center gap-3 border-b border-slate-200/70 pb-6 dark:border-white/10"><div><p class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-600"><span class="material-symbols-rounded text-base">check_circle</span>Análise concluída</p><h3 class="mt-2 text-2xl font-bold text-ink dark:text-white">Resultado da análise</h3></div><div class="ml-auto flex gap-2"><button @click="copyAnalysis()" class="focusable rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold dark:border-white/10 dark:bg-white/5"><span class="material-symbols-rounded align-middle text-base">content_copy</span> Copiar</button><button @click="toast('Exportação será conectada ao backend em breve','info')" class="focusable rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold dark:border-white/10 dark:bg-white/5"><span class="material-symbols-rounded align-middle text-base">download</span> Exportar</button></div></div>
-            <nav class="my-6 flex gap-2 overflow-x-auto pb-2" aria-label="Seções da análise"><template x-for="section in analysisSections" :key="section.number"><a :href="'#analysis-'+section.number" class="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-indigo-200 hover:text-indigo-600 dark:border-white/10 dark:bg-white/5"><span x-text="section.number+'. '"></span><span x-text="section.title"></span></a></template></nav>
-            <div class="space-y-4"><template x-for="section in analysisSections" :key="section.number"><article :id="'analysis-'+section.number" class="scroll-mt-28 rounded-3xl border border-slate-200/70 bg-white px-6 py-6 dark:border-white/10 dark:bg-white/[.035]"><div class="flex gap-4"><span class="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-indigo-50 text-xs font-bold text-indigo-600 dark:bg-indigo-400/10 dark:text-indigo-300" x-text="section.number"></span><div class="min-w-0 flex-1"><h4 class="font-semibold text-ink dark:text-white" x-text="section.title"></h4><div class="mt-3 space-y-3"><template x-for="paragraph in section.paragraphs"><p class="text-sm leading-7 text-slate-600 dark:text-slate-300" x-text="paragraph"></p></template></div><ul x-show="section.items.length" class="mt-4 space-y-2.5"><template x-for="item in section.items"><li class="flex gap-3 text-sm leading-7 text-slate-600 dark:text-slate-300"><span class="mt-[11px] h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-400"></span><span x-text="item"></span></li></template></ul></div></div></article></template></div>
-            <article x-show="analysisSources.length" class="mt-5 rounded-3xl border border-slate-200/70 bg-white px-6 py-5 dark:border-white/10 dark:bg-white/[.035]"><div class="flex items-center gap-3"><span class="grid h-8 w-8 place-items-center rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-400/10 dark:text-purple-300"><span class="material-symbols-rounded text-lg">library_books</span></span><h4 class="font-semibold text-ink dark:text-white">Evidências recuperadas</h4></div><div class="mt-4 divide-y divide-slate-100 dark:divide-white/10"><template x-for="source in analysisSources" :key="source.rank"><div class="flex flex-wrap items-center gap-3 py-3 text-sm"><span class="font-semibold text-ink dark:text-white" x-text="source.title"></span><span class="text-xs text-slate-400" x-text="'Chunk '+source.chunk_index"></span><span class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300" x-text="Math.max(0,Math.round((1-source.distance)*100))+'% similar'"></span><a x-show="source.url" :href="source.url" target="_blank" rel="noopener noreferrer" class="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-indigo-600">Abrir fonte <span class="material-symbols-rounded text-sm">open_in_new</span></a></div></template></div></article>
-          </div>
-        </section>
+        <main
+          class="relative mx-auto max-w-[1440px] px-5 py-8 md:px-8 lg:px-10 lg:py-10"
+        >
+          <!-- Visão geral -->
+          <section x-show="currentPage==='overview'" x-transition.opacity>
+            <div
+              class="relative overflow-hidden rounded-[32px] border border-slate-200/70 bg-white px-7 py-10 shadow-soft md:px-11 dark:border-white/10 dark:bg-white/[.035]"
+            >
+              <div class="relative max-w-3xl">
+                <span
+                  class="mb-5 inline-flex items-center gap-2 rounded-full bg-indigo-50 px-3 py-1.5 text-xs font-semibold text-indigo-700 dark:bg-indigo-400/10 dark:text-indigo-300"
+                  ><span class="material-symbols-rounded text-base"
+                    >auto_awesome</span
+                  >Base pronta para consulta</span
+                >
+                <h2
+                  class="text-3xl font-bold tracking-tight text-ink md:text-4xl dark:text-white"
+                >
+                  Bem-vindo ao Memora
+                </h2>
+                <p
+                  class="mt-4 max-w-2xl text-base leading-7 text-slate-500 dark:text-slate-400"
+                >
+                  Recupere conhecimento de projetos anteriores, encontre
+                  demandas semelhantes e acelere novas entregas com
+                  rastreabilidade.
+                </p>
+                <div class="mt-7 flex flex-wrap gap-3">
+                  <button
+                    @click="go('analyze')"
+                    class="focusable rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-slate-900/10 hover:bg-slate-800 dark:bg-indigo-500 dark:hover:bg-indigo-400"
+                  >
+                    <span class="inline-flex items-center gap-2"
+                      ><span class="material-symbols-rounded">auto_awesome</span
+                      >Analisar demanda</span
+                    ></button
+                  ><button
+                    @click="go('search')"
+                    class="focusable rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-ink hover:bg-slate-50 dark:border-white/10 dark:bg-white/5 dark:text-white"
+                  >
+                    <span class="inline-flex items-center gap-2"
+                      ><span class="material-symbols-rounded">search</span
+                      >Buscar conhecimento</span
+                    >
+                  </button>
+                </div>
+              </div>
+            </div>
+            <div class="mt-6 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <template x-for="metric in metrics" :key="metric.label"
+                ><article
+                  class="rounded-3xl border border-slate-200/70 bg-white p-5 shadow-soft dark:border-white/10 dark:bg-white/[.035]"
+                >
+                  <div class="flex items-center justify-between">
+                    <span
+                      class="grid h-10 w-10 place-items-center rounded-2xl bg-slate-50 text-indigo-600 dark:bg-white/5 dark:text-indigo-300"
+                      ><span
+                        class="material-symbols-rounded"
+                        x-text="metric.icon"
+                      ></span></span
+                    ><span
+                      class="text-xs text-emerald-600"
+                      x-text="metric.detail"
+                    ></span>
+                  </div>
+                  <p
+                    class="mt-5 text-2xl font-bold text-ink dark:text-white"
+                    x-text="metric.value"
+                  ></p>
+                  <p
+                    class="mt-1 text-sm text-slate-400"
+                    x-text="metric.label"
+                  ></p></article
+              ></template>
+            </div>
+            <div class="mt-6 grid gap-6 xl:grid-cols-[1.15fr_.85fr]">
+              <article
+                class="rounded-3xl border border-slate-200/70 bg-white p-6 dark:border-white/10 dark:bg-white/[.035]"
+              >
+                <div class="flex items-center justify-between">
+                  <div>
+                    <h3 class="font-semibold text-ink dark:text-white">
+                      Status das integrações
+                    </h3>
+                    <p class="mt-1 text-sm text-slate-400">
+                      Estado informado pelo backend
+                    </p>
+                  </div>
+                  <span
+                    class="rounded-full bg-slate-100 px-3 py-1 text-xs font-semibold text-slate-600 dark:bg-white/5 dark:text-slate-300"
+                    x-text="services.filter(service=>service.active).length+' de '+services.length+' ativos'"
+                  ></span>
+                </div>
+                <div class="mt-5 grid gap-3 sm:grid-cols-2">
+                  <template x-for="service in services" :key="service.name"
+                    ><div
+                      class="flex items-center gap-3 rounded-2xl border border-slate-100 p-4 dark:border-white/10"
+                    >
+                      <span
+                        :class="service.active?'bg-emerald-50 text-emerald-600 dark:bg-emerald-400/10':'bg-amber-50 text-amber-600 dark:bg-amber-400/10'"
+                        class="grid h-9 w-9 place-items-center rounded-xl"
+                        ><span
+                          class="material-symbols-rounded"
+                          x-text="service.active?'check_circle':'error'"
+                        ></span
+                      ></span>
+                      <div>
+                        <p
+                          class="text-sm font-semibold text-ink dark:text-white"
+                          x-text="service.name"
+                        ></p>
+                        <p
+                          class="text-xs text-slate-400"
+                          x-text="service.status"
+                        ></p>
+                      </div></div
+                  ></template>
+                </div>
+              </article>
+              <article
+                class="rounded-3xl border border-slate-200/70 bg-white p-6 dark:border-white/10 dark:bg-white/[.035]"
+              >
+                <h3 class="font-semibold text-ink dark:text-white">
+                  Atividade desta sessão
+                </h3>
+                <div x-show="activities.length" class="mt-5 space-y-5">
+                  <template x-for="activity in activities" :key="activity.id"
+                    ><div class="flex gap-3">
+                      <span
+                        class="mt-1 h-2.5 w-2.5 shrink-0 rounded-full bg-indigo-400 ring-4 ring-indigo-50 dark:ring-indigo-400/10"
+                      ></span>
+                      <div>
+                        <p
+                          class="text-sm text-slate-600 dark:text-slate-300"
+                          x-text="activity.text"
+                        ></p>
+                        <p
+                          class="mt-1 text-xs text-slate-400"
+                          x-text="activity.time"
+                        ></p>
+                      </div></div
+                  ></template>
+                </div>
+                <div x-show="!activities.length" class="mt-8 text-center">
+                  <span
+                    class="material-symbols-rounded text-3xl text-slate-300 dark:text-slate-600"
+                    >history</span
+                  >
+                  <p class="mt-2 text-sm text-slate-400">
+                    Nenhuma atividade nesta sessão.
+                  </p>
+                </div>
+              </article>
+            </div>
+          </section>
 
-        <!-- Busca -->
-        <section x-show="currentPage==='search'" x-transition.opacity x-cloak>
-          <div class="mx-auto max-w-5xl py-7 text-center"><h2 class="text-3xl font-bold tracking-tight text-ink dark:text-white">Explore a memória da sua equipe</h2><p class="mt-3 text-slate-500">Busque requisitos, decisões técnicas, integrações, riscos ou projetos anteriores.</p><form @submit.prevent="runSearch()" class="soft-ring mt-8 flex items-center gap-3 rounded-[24px] bg-white p-3 text-left dark:bg-[#1a2030]"><span class="material-symbols-rounded ml-2 text-slate-400">search</span><input x-model="searchQuery" class="focusable min-w-0 flex-1 border-0 bg-transparent py-3 text-base text-ink placeholder:text-slate-400 focus:outline-none dark:text-white" placeholder="O que você deseja encontrar?"><button class="focusable rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white dark:bg-indigo-500">Buscar</button></form><div class="mt-5 flex flex-wrap justify-center gap-2"><template x-for="example in searchExamples" :key="example"><button @click="searchQuery=example; runSearch()" class="focusable rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-500 hover:border-indigo-200 hover:text-indigo-600 dark:border-white/10 dark:bg-white/5" x-text="example"></button></template></div></div>
-          <div class="mt-5 flex flex-wrap items-center gap-3"><button @click="filtersOpen=!filtersOpen" class="focusable inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium dark:border-white/10 dark:bg-white/5"><span class="material-symbols-rounded">filter_list</span>Filtros</button><label class="text-sm text-slate-400">Resultados <select x-model="searchLimit" class="ml-2 rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-white/10 dark:bg-[#202636]"><option>5</option><option>10</option><option>15</option></select></label><span x-show="searchState==='results'" class="ml-auto text-sm text-slate-400" x-text="searchResults.length+' resultados encontrados'"></span></div>
-          <div x-show="filtersOpen" x-collapse class="mt-4 grid gap-4 rounded-3xl border border-slate-200/70 bg-white p-5 sm:grid-cols-2 lg:grid-cols-4 dark:border-white/10 dark:bg-white/[.035]"><label class="text-xs text-slate-500">Espaço<select class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-[#202636]"><option>Todos</option><option>TI</option></select></label><label class="text-xs text-slate-500">Tipo<select class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-[#202636]"><option>Todos</option><option>Projeto</option><option>Decisão</option></select></label><label class="text-xs text-slate-500">Período<select class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-[#202636]"><option>Qualquer período</option><option>Último ano</option></select></label><label class="text-xs text-slate-500">Similaridade mínima<input type="range" min="50" max="95" value="70" class="mt-5 w-full accent-indigo-500"></label></div>
-          <div x-show="searchState==='idle'" class="mt-16 text-center"><span class="material-symbols-rounded text-5xl text-slate-200 dark:text-slate-700">manage_search</span><p class="mt-4 font-semibold text-ink dark:text-white">Comece com uma pergunta ou requisito</p><p class="mt-1 text-sm text-slate-400">A busca usa significado, não apenas palavras exatas.</p></div>
-          <div x-show="searchState==='loading'" class="mt-8 space-y-4"><template x-for="i in 3"><div class="animate-pulse rounded-3xl border border-slate-200/70 bg-white p-6 dark:border-white/10 dark:bg-white/[.035]"><div class="h-4 w-1/3 rounded bg-slate-100 dark:bg-white/10"></div><div class="mt-4 h-3 w-full rounded bg-slate-100 dark:bg-white/10"></div><div class="mt-2 h-3 w-4/5 rounded bg-slate-100 dark:bg-white/10"></div></div></template></div>
-          <div x-show="searchState==='results'" class="mt-8 space-y-4"><template x-for="(result,i) in searchResults" :key="result.id"><article class="group rounded-3xl border border-slate-200/70 bg-white p-6 transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-soft dark:border-white/10 dark:bg-white/[.035]"><div class="flex gap-4"><span class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-slate-50 font-bold text-indigo-600 dark:bg-white/5" x-text="i+1"></span><div class="min-w-0 flex-1"><div class="flex flex-wrap items-start gap-3"><div><p class="text-xs font-semibold text-indigo-600" x-text="result.id+' · Projeto corporativo'"></p><h3 class="mt-1 font-semibold text-ink dark:text-white" x-text="result.title"></h3></div><span class="ml-auto rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300" x-text="result.similarity+'% similar'"></span></div><p class="mt-4 text-sm leading-7 text-slate-500 dark:text-slate-400" x-text="result.excerpt"></p><div class="mt-4 flex flex-wrap items-center gap-3 text-xs"><span class="text-slate-400" x-text="'Chunk '+result.chunk+' · Espaço TI'"></span><button @click="technicalOpen=technicalOpen===result.id?null:result.id" class="font-semibold text-slate-500">Detalhes técnicos</button><button @click="useInAnalysis(result)" class="ml-auto rounded-xl bg-indigo-50 px-3 py-2 font-semibold text-indigo-700 dark:bg-indigo-400/10 dark:text-indigo-300">Usar em análise</button><a href="#" @click.prevent="toast('Abrindo fonte simulada','info')" class="font-semibold text-slate-500">Confluence ↗</a></div><div x-show="technicalOpen===result.id" x-collapse class="mt-4 rounded-xl bg-slate-50 p-3 text-xs text-slate-500 dark:bg-white/5">Distância vetorial: <span x-text="((100-result.similarity)/100).toFixed(4)"></span> · Modelo: multilingual-MiniLM-L12-v2</div></div></div></article></template></div>
-        </section>
+          <!-- Analisar -->
+          <section
+            x-show="currentPage==='analyze'"
+            x-transition.opacity
+            x-cloak
+          >
+            <div class="aurora relative mx-auto max-w-5xl py-8 text-center">
+              <div class="relative">
+                <span
+                  class="inline-flex items-center gap-2 text-sm font-semibold text-indigo-600 dark:text-indigo-300"
+                  ><span class="material-symbols-rounded">auto_awesome</span
+                  >Análise assistida por evidências</span
+                >
+                <h2
+                  class="mt-3 text-3xl font-bold tracking-tight text-ink md:text-4xl dark:text-white"
+                >
+                  O que precisamos construir?
+                </h2>
+                <p
+                  class="mx-auto mt-3 max-w-2xl text-slate-500 dark:text-slate-400"
+                >
+                  Cole as anotações da reunião. O Memora encontrará projetos
+                  semelhantes e oportunidades reais de reaproveitamento.
+                </p>
+              </div>
+            </div>
+            <div
+              class="soft-ring mx-auto max-w-5xl rounded-[30px] bg-white p-3 dark:bg-[#1a2030]"
+            >
+              <textarea
+                x-model="analysisInput"
+                maxlength="5000"
+                rows="7"
+                class="focusable w-full resize-none rounded-3xl border-0 bg-transparent px-5 py-4 text-base leading-7 text-ink placeholder:text-slate-400 focus:outline-none dark:text-white"
+                placeholder="Exemplo: O cliente precisa de um portal web B2B com login, dashboard, permissões por perfil e integração com API externa..."
+              ></textarea>
+              <div
+                class="flex flex-wrap items-center gap-2 border-t border-slate-100 px-3 pt-3 dark:border-white/10"
+              >
+                <button
+                  @click="advanced=!advanced"
+                  class="focusable inline-flex items-center gap-2 rounded-xl px-3 py-2 text-xs font-medium text-slate-500 hover:bg-slate-50 dark:hover:bg-white/5"
+                >
+                  <span class="material-symbols-rounded">tune</span>Opções
+                  avançadas<span
+                    class="material-symbols-rounded text-base"
+                    x-text="advanced?'expand_less':'expand_more'"
+                  ></span></button
+                ><span
+                  class="ml-auto text-xs text-slate-400"
+                  x-text="analysisInput.length.toLocaleString('pt-BR')+' / 5.000'"
+                ></span
+                ><button
+                  @click="analysisInput=''; analysisResult=false"
+                  class="focusable rounded-xl px-4 py-2.5 text-sm font-semibold text-slate-500 hover:bg-slate-50 dark:hover:bg-white/5"
+                >
+                  Limpar</button
+                ><button
+                  @click="runAnalysis()"
+                  :disabled="!analysisInput.trim() || analyzing"
+                  class="focusable inline-flex items-center gap-2 rounded-2xl bg-indigo-500 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-indigo-500/20 hover:bg-indigo-600 disabled:cursor-not-allowed disabled:opacity-40"
+                >
+                  <span
+                    class="material-symbols-rounded"
+                    x-text="analyzing?'progress_activity':'arrow_upward'"
+                  ></span
+                  ><span
+                    x-text="analyzing?'Analisando...':'Analisar demanda'"
+                  ></span>
+                </button>
+              </div>
+              <div
+                x-show="advanced"
+                x-collapse
+                class="grid gap-4 border-t border-slate-100 px-5 py-5 sm:grid-cols-2 lg:grid-cols-4 dark:border-white/10"
+              >
+                <label class="text-xs text-slate-500"
+                  >Trechos recuperados<input
+                    x-model="analysisOptions.topK"
+                    type="number"
+                    min="3"
+                    max="15"
+                    class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-white/5" /></label
+                ><label class="text-xs text-slate-500"
+                  >Provider<select
+                    x-model="settings.provider"
+                    @change="selectDefaultModel()"
+                    class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-[#202636]"
+                  >
+                    <option>Ollama</option>
+                    <option>OpenAI</option>
+                    <option>Gemini</option>
+                  </select></label
+                ><label class="text-xs text-slate-500"
+                  >Modelo<select
+                    x-model="settings.model"
+                    :disabled="!availableModels[settings.provider].length"
+                    class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm disabled:cursor-not-allowed disabled:text-slate-400 dark:border-white/10 dark:bg-[#202636]"
+                  >
+                    <option
+                      x-show="!availableModels[settings.provider].length"
+                      value=""
+                    >
+                      Nenhum modelo disponível
+                    </option>
+                    <template
+                      x-for="model in availableModels[settings.provider]"
+                      :key="model"
+                      ><option :value="model" x-text="model"></option
+                    ></template></select></label
+                ><label class="text-xs text-slate-500"
+                  >Similaridade mínima<input
+                    x-model="analysisOptions.similarity"
+                    type="range"
+                    min="50"
+                    max="95"
+                    class="mt-5 w-full accent-indigo-500" /><span
+                    x-text="analysisOptions.similarity+'%'"
+                  ></span
+                ></label>
+              </div>
+            </div>
+            <div
+              x-show="analyzing"
+              x-transition
+              class="mx-auto mt-8 max-w-3xl rounded-3xl border border-slate-200/70 bg-white p-6 dark:border-white/10 dark:bg-white/[.035]"
+            >
+              <div class="mb-5 flex items-center justify-between">
+                <p class="font-semibold text-ink dark:text-white">
+                  Construindo análise
+                </p>
+                <span
+                  class="text-sm text-indigo-600"
+                  x-text="analysisProgress+'%'"
+                ></span>
+              </div>
+              <div
+                class="h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10"
+              >
+                <div
+                  class="h-full rounded-full bg-gradient-to-r from-blue-400 to-purple-400 transition-all duration-500"
+                  :style="`width:${analysisProgress}%`"
+                ></div>
+              </div>
+              <div class="mt-6 grid gap-4 sm:grid-cols-4">
+                <template x-for="(step,i) in analysisSteps" :key="step"
+                  ><div
+                    :class="i<=analysisStep?'text-indigo-600 dark:text-indigo-300':'text-slate-300 dark:text-slate-600'"
+                    class="text-center"
+                  >
+                    <span
+                      class="material-symbols-rounded"
+                      x-text="i<analysisStep?'check_circle':i===analysisStep?'progress_activity':'radio_button_unchecked'"
+                    ></span>
+                    <p class="mt-2 text-xs" x-text="step"></p></div
+                ></template>
+              </div>
+            </div>
+            <div
+              x-show="analysisResult && !analyzing"
+              x-transition
+              class="mx-auto mt-12 max-w-5xl"
+            >
+              <div
+                class="flex flex-wrap items-center gap-3 border-b border-slate-200/70 pb-6 dark:border-white/10"
+              >
+                <div>
+                  <p
+                    class="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-wider text-emerald-600"
+                  >
+                    <span class="material-symbols-rounded text-base"
+                      >check_circle</span
+                    >Análise concluída
+                  </p>
+                  <h3 class="mt-2 text-2xl font-bold text-ink dark:text-white">
+                    Resultado da análise
+                  </h3>
+                </div>
+                <div class="ml-auto flex gap-2">
+                  <button
+                    @click="copyAnalysis()"
+                    class="focusable rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold dark:border-white/10 dark:bg-white/5"
+                  >
+                    <span
+                      class="material-symbols-rounded align-middle text-base"
+                      >content_copy</span
+                    >
+                    Copiar</button
+                  ><button
+                    @click="toast('Exportação será conectada ao backend em breve','info')"
+                    class="focusable rounded-xl border border-slate-200 bg-white px-3 py-2 text-xs font-semibold dark:border-white/10 dark:bg-white/5"
+                  >
+                    <span
+                      class="material-symbols-rounded align-middle text-base"
+                      >download</span
+                    >
+                    Exportar
+                  </button>
+                </div>
+              </div>
+              <nav
+                class="my-6 flex gap-2 overflow-x-auto pb-2"
+                aria-label="Seções da análise"
+              >
+                <template
+                  x-for="section in analysisSections"
+                  :key="section.number"
+                  ><a
+                    :href="'#analysis-'+section.number"
+                    class="shrink-0 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-medium text-slate-500 hover:border-indigo-200 hover:text-indigo-600 dark:border-white/10 dark:bg-white/5"
+                    ><span x-text="section.number+'. '"></span
+                    ><span x-text="section.title"></span></a
+                ></template>
+              </nav>
+              <div class="space-y-4">
+                <template
+                  x-for="section in analysisSections"
+                  :key="section.number"
+                  ><article
+                    :id="'analysis-'+section.number"
+                    class="scroll-mt-28 rounded-3xl border border-slate-200/70 bg-white px-6 py-6 dark:border-white/10 dark:bg-white/[.035]"
+                  >
+                    <div class="flex gap-4">
+                      <span
+                        class="grid h-8 w-8 shrink-0 place-items-center rounded-xl bg-indigo-50 text-xs font-bold text-indigo-600 dark:bg-indigo-400/10 dark:text-indigo-300"
+                        x-text="section.number"
+                      ></span>
+                      <div class="min-w-0 flex-1">
+                        <h4
+                          class="font-semibold text-ink dark:text-white"
+                          x-text="section.title"
+                        ></h4>
+                        <div class="mt-3 space-y-3">
+                          <template x-for="paragraph in section.paragraphs"
+                            ><p
+                              class="text-sm leading-7 text-slate-600 dark:text-slate-300"
+                              x-text="paragraph"
+                            ></p
+                          ></template>
+                        </div>
+                        <ul
+                          x-show="section.items.length"
+                          class="mt-4 space-y-2.5"
+                        >
+                          <template x-for="item in section.items"
+                            ><li
+                              class="flex gap-3 text-sm leading-7 text-slate-600 dark:text-slate-300"
+                            >
+                              <span
+                                class="mt-[11px] h-1.5 w-1.5 shrink-0 rounded-full bg-indigo-400"
+                              ></span
+                              ><span x-text="item"></span></li
+                          ></template>
+                        </ul>
+                      </div>
+                    </div></article
+                ></template>
+              </div>
+              <article
+                x-show="analysisSources.length"
+                class="mt-5 rounded-3xl border border-slate-200/70 bg-white px-6 py-5 dark:border-white/10 dark:bg-white/[.035]"
+              >
+                <div class="flex items-center gap-3">
+                  <span
+                    class="grid h-8 w-8 place-items-center rounded-xl bg-purple-50 text-purple-600 dark:bg-purple-400/10 dark:text-purple-300"
+                    ><span class="material-symbols-rounded text-lg"
+                      >library_books</span
+                    ></span
+                  >
+                  <h4 class="font-semibold text-ink dark:text-white">
+                    Evidências recuperadas
+                  </h4>
+                </div>
+                <div
+                  class="mt-4 divide-y divide-slate-100 dark:divide-white/10"
+                >
+                  <template x-for="source in analysisSources" :key="source.rank"
+                    ><div
+                      class="flex flex-wrap items-center gap-3 py-3 text-sm"
+                    >
+                      <span
+                        class="font-semibold text-ink dark:text-white"
+                        x-text="source.title"
+                      ></span
+                      ><span
+                        class="text-xs text-slate-400"
+                        x-text="'Chunk '+source.chunk_index"
+                      ></span
+                      ><span
+                        class="rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300"
+                        x-text="Math.max(0,Math.round((1-source.distance)*100))+'% similar'"
+                      ></span
+                      ><a
+                        x-show="source.url"
+                        :href="source.url"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        class="ml-auto inline-flex items-center gap-1 text-xs font-semibold text-indigo-600"
+                        >Abrir fonte
+                        <span class="material-symbols-rounded text-sm"
+                          >open_in_new</span
+                        ></a
+                      >
+                    </div></template
+                  >
+                </div>
+              </article>
+            </div>
+          </section>
 
-        <!-- Sincronização -->
-        <section x-show="currentPage==='sync'" x-transition.opacity x-cloak>
-          <div class="flex flex-wrap items-end gap-4"><div><span class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600"><i class="h-2 w-2 rounded-full bg-emerald-500"></i>Confluence conectado</span><h2 class="mt-2 text-3xl font-bold text-ink dark:text-white">Sincronização de conhecimento</h2><p class="mt-2 text-slate-500">Mantenha a base vetorial alinhada à documentação corporativa.</p></div><button @click="runSync()" :disabled="syncing" class="focusable ml-auto inline-flex items-center gap-2 rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white disabled:opacity-50 dark:bg-indigo-500"><span class="material-symbols-rounded" :class="syncing&&'animate-spin'">sync</span><span x-text="syncing?'Sincronizando...':'Sincronizar agora'"></span></button></div>
-          <div class="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4"><template x-for="item in syncMetrics"><article class="rounded-3xl border border-slate-200/70 bg-white p-5 dark:border-white/10 dark:bg-white/[.035]"><p class="text-sm text-slate-400" x-text="item.label"></p><p class="mt-2 text-xl font-bold text-ink dark:text-white" x-text="item.value"></p></article></template></div>
-          <article class="mt-6 rounded-3xl border border-slate-200/70 bg-white p-6 dark:border-white/10 dark:bg-white/[.035]"><div class="flex flex-wrap items-center gap-4"><div><h3 class="font-semibold text-ink dark:text-white">Espaço TI</h3><p class="mt-1 text-sm text-slate-400">Limite desta execução</p></div><input x-model="pageLimit" type="number" min="1" max="100" class="ml-auto w-24 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-white/5"><span class="text-sm text-slate-400">páginas</span></div><div x-show="syncing || syncComplete" class="mt-7"><div class="flex justify-between text-sm"><span x-text="syncing?'Processando '+syncCurrent+' de '+pageLimit+' páginas':'Sincronização concluída'"></span><span x-text="syncProgress+'%'"></span></div><div class="mt-3 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10"><div class="h-full rounded-full bg-emerald-500 transition-all duration-300" :style="`width:${syncProgress}%`"></div></div><div class="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4"><template x-for="stat in syncStats"><div class="rounded-2xl bg-slate-50 p-4 dark:bg-white/5"><p class="text-xl font-bold text-ink dark:text-white" x-text="stat.value"></p><p class="mt-1 text-xs text-slate-400" x-text="stat.label"></p></div></template></div></div></article>
-          <article class="mt-6 rounded-3xl border border-slate-200/70 bg-white p-6 dark:border-white/10 dark:bg-white/[.035]"><div class="flex items-center justify-between"><div><h3 class="font-semibold text-ink dark:text-white">Histórico de sincronizações</h3><p class="mt-1 text-sm text-slate-400">Execuções realizadas nesta sessão</p></div></div><div x-show="syncHistory.length" class="mt-5 overflow-x-auto"><table class="w-full min-w-[650px] text-left text-sm"><thead class="text-xs uppercase tracking-wider text-slate-400"><tr><th class="pb-4 font-medium">Data</th><th class="pb-4 font-medium">Duração</th><th class="pb-4 font-medium">Páginas</th><th class="pb-4 font-medium">Resultado</th><th class="pb-4 font-medium">Status</th></tr></thead><tbody class="divide-y divide-slate-100 dark:divide-white/10"><template x-for="row in syncHistory"><tr><td class="py-4" x-text="row.date"></td><td x-text="row.duration"></td><td x-text="row.pages"></td><td x-text="row.result"></td><td><span class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300"><span class="material-symbols-rounded text-sm">check_circle</span>Concluída</span></td></tr></template></tbody></table></div><div x-show="!syncHistory.length" class="py-10 text-center"><span class="material-symbols-rounded text-3xl text-slate-300 dark:text-slate-600">history</span><p class="mt-2 text-sm text-slate-400">Nenhuma sincronização realizada nesta sessão.</p></div></article>
-          <div class="mt-6 flex items-center justify-between rounded-3xl border border-dashed border-amber-200 bg-amber-50/60 p-5 dark:border-amber-400/20 dark:bg-amber-400/5"><div><p class="font-semibold text-amber-900 dark:text-amber-200">Reconstruir base vetorial</p><p class="mt-1 text-sm text-amber-700/70">Recurso planejado para uma próxima versão.</p></div><button disabled class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-300 dark:bg-white/5">Em breve</button></div>
-        </section>
+          <!-- Busca -->
+          <section x-show="currentPage==='search'" x-transition.opacity x-cloak>
+            <div class="mx-auto max-w-5xl py-7 text-center">
+              <h2
+                class="text-3xl font-bold tracking-tight text-ink dark:text-white"
+              >
+                Explore a memória da sua equipe
+              </h2>
+              <p class="mt-3 text-slate-500">
+                Busque requisitos, decisões técnicas, integrações, riscos ou
+                projetos anteriores.
+              </p>
+              <form
+                @submit.prevent="runSearch()"
+                class="soft-ring mt-8 flex items-center gap-3 rounded-[24px] bg-white p-3 text-left dark:bg-[#1a2030]"
+              >
+                <span class="material-symbols-rounded ml-2 text-slate-400"
+                  >search</span
+                ><input
+                  x-model="searchQuery"
+                  class="focusable min-w-0 flex-1 border-0 bg-transparent py-3 text-base text-ink placeholder:text-slate-400 focus:outline-none dark:text-white"
+                  placeholder="O que você deseja encontrar?"
+                /><button
+                  class="focusable rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white dark:bg-indigo-500"
+                >
+                  Buscar
+                </button>
+              </form>
+              <div class="mt-5 flex flex-wrap justify-center gap-2">
+                <template x-for="example in searchExamples" :key="example"
+                  ><button
+                    @click="searchQuery=example; runSearch()"
+                    class="focusable rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs text-slate-500 hover:border-indigo-200 hover:text-indigo-600 dark:border-white/10 dark:bg-white/5"
+                    x-text="example"
+                  ></button
+                ></template>
+              </div>
+            </div>
+            <div class="mt-5 flex flex-wrap items-center gap-3">
+              <button
+                @click="filtersOpen=!filtersOpen"
+                class="focusable inline-flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-4 py-2.5 text-sm font-medium dark:border-white/10 dark:bg-white/5"
+              >
+                <span class="material-symbols-rounded">filter_list</span
+                >Filtros</button
+              ><label class="text-sm text-slate-400"
+                >Resultados
+                <select
+                  x-model="searchLimit"
+                  class="ml-2 rounded-xl border border-slate-200 bg-white px-3 py-2 dark:border-white/10 dark:bg-[#202636]"
+                >
+                  <option>5</option>
+                  <option>10</option>
+                  <option>15</option>
+                </select></label
+              ><span
+                x-show="searchState==='results'"
+                class="ml-auto text-sm text-slate-400"
+                x-text="searchResults.length+' resultados encontrados'"
+              ></span>
+            </div>
+            <div
+              x-show="filtersOpen"
+              x-collapse
+              class="mt-4 grid gap-4 rounded-3xl border border-slate-200/70 bg-white p-5 sm:grid-cols-2 lg:grid-cols-4 dark:border-white/10 dark:bg-white/[.035]"
+            >
+              <label class="text-xs text-slate-500"
+                >Espaço<select
+                  class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-[#202636]"
+                >
+                  <option>Todos</option>
+                  <option>TI</option>
+                </select></label
+              ><label class="text-xs text-slate-500"
+                >Tipo<select
+                  class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-[#202636]"
+                >
+                  <option>Todos</option>
+                  <option>Projeto</option>
+                  <option>Decisão</option>
+                </select></label
+              ><label class="text-xs text-slate-500"
+                >Período<select
+                  class="mt-2 w-full rounded-xl border border-slate-200 bg-slate-50 p-3 dark:border-white/10 dark:bg-[#202636]"
+                >
+                  <option>Qualquer período</option>
+                  <option>Último ano</option>
+                </select></label
+            </div>
+            <div x-show="searchState==='idle'" class="mt-16 text-center">
+              <span
+                class="material-symbols-rounded text-5xl text-slate-200 dark:text-slate-700"
+                >manage_search</span
+              >
+              <p class="mt-4 font-semibold text-ink dark:text-white">
+                Comece com uma pergunta ou requisito
+              </p>
+              <p class="mt-1 text-sm text-slate-400">
+                A busca usa significado, não apenas palavras exatas.
+              </p>
+            </div>
+            <div x-show="searchState==='loading'" class="mt-8 space-y-4">
+              <template x-for="i in 3"
+                ><div
+                  class="animate-pulse rounded-3xl border border-slate-200/70 bg-white p-6 dark:border-white/10 dark:bg-white/[.035]"
+                >
+                  <div
+                    class="h-4 w-1/3 rounded bg-slate-100 dark:bg-white/10"
+                  ></div>
+                  <div
+                    class="mt-4 h-3 w-full rounded bg-slate-100 dark:bg-white/10"
+                  ></div>
+                  <div
+                    class="mt-2 h-3 w-4/5 rounded bg-slate-100 dark:bg-white/10"
+                  ></div></div
+              ></template>
+            </div>
+            <div x-show="searchState==='results'" class="mt-8 space-y-4">
+              <template x-for="(result,i) in searchResults" :key="result.id"
+                ><article
+                  class="group rounded-3xl border border-slate-200/70 bg-white p-6 transition hover:-translate-y-0.5 hover:border-indigo-200 hover:shadow-soft dark:border-white/10 dark:bg-white/[.035]"
+                >
+                  <div class="flex gap-4">
+                    <span
+                      class="grid h-10 w-10 shrink-0 place-items-center rounded-2xl bg-slate-50 font-bold text-indigo-600 dark:bg-white/5"
+                      x-text="i+1"
+                    ></span>
+                    <div class="min-w-0 flex-1">
+                      <div class="flex flex-wrap items-start gap-3">
+                        <div>
+                          <p
+                            class="text-xs font-semibold text-indigo-600"
+                            x-text="result.id+' · Projeto corporativo'"
+                          ></p>
+                          <h3
+                            class="mt-1 font-semibold text-ink dark:text-white"
+                            x-text="result.title"
+                          ></h3>
+                        </div>
+                        <span
+                          class="ml-auto rounded-full bg-emerald-50 px-3 py-1 text-xs font-semibold text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300"
+                          x-text="result.similarity+'% similar'"
+                        ></span>
+                      </div>
+                      <p
+                        class="mt-4 text-sm leading-7 text-slate-500 dark:text-slate-400"
+                        x-text="result.excerpt"
+                      ></p>
+                      <div
+                        class="mt-4 flex flex-wrap items-center gap-3 text-xs"
+                      >
+                        <span
+                          class="text-slate-400"
+                          x-text="'Chunk '+result.chunk+' · Espaço TI'"
+                        ></span
+                        ><button
+                          @click="technicalOpen=technicalOpen===result.id?null:result.id"
+                          class="font-semibold text-slate-500"
+                        >
+                          Detalhes técnicos</button
+                        ><button
+                          @click="useInAnalysis(result)"
+                          class="ml-auto rounded-xl bg-indigo-50 px-3 py-2 font-semibold text-indigo-700 dark:bg-indigo-400/10 dark:text-indigo-300"
+                        >
+                          Usar em análise</button
+                        ><a
+                          href="#"
+                          @click.prevent="toast('Abrindo fonte simulada','info')"
+                          class="font-semibold text-slate-500"
+                          >Confluence ↗</a
+                        >
+                      </div>
+                      <div
+                        x-show="technicalOpen===result.id"
+                        x-collapse
+                        class="mt-4 rounded-xl bg-slate-50 p-3 text-xs text-slate-500 dark:bg-white/5"
+                      >
+                        Distância vetorial:
+                        <span
+                          x-text="((100-result.similarity)/100).toFixed(4)"
+                        ></span>
+                        · Modelo: multilingual-MiniLM-L12-v2
+                      </div>
+                    </div>
+                  </div>
+                </article></template
+              >
+            </div>
+          </section>
 
-        <!-- Configurações -->
+          <!-- Sincronização -->
+          <section x-show="currentPage==='sync'" x-transition.opacity x-cloak>
+            <div class="flex flex-wrap items-end gap-4">
+              <div>
+                <span
+                  class="inline-flex items-center gap-2 text-sm font-semibold text-emerald-600"
+                  ><i class="h-2 w-2 rounded-full bg-emerald-500"></i>Confluence
+                  conectado</span
+                >
+                <h2 class="mt-2 text-3xl font-bold text-ink dark:text-white">
+                  Sincronização de conhecimento
+                </h2>
+                <p class="mt-2 text-slate-500">
+                  Mantenha a base vetorial alinhada à documentação corporativa.
+                </p>
+              </div>
+              <button
+                @click="runSync()"
+                :disabled="syncing"
+                class="focusable ml-auto inline-flex items-center gap-2 rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white disabled:opacity-50 dark:bg-indigo-500"
+              >
+                <span
+                  class="material-symbols-rounded"
+                  :class="syncing&&'animate-spin'"
+                  >sync</span
+                ><span
+                  x-text="syncing?'Sincronizando...':'Sincronizar agora'"
+                ></span>
+              </button>
+            </div>
+            <div class="mt-7 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              <template x-for="item in syncMetrics"
+                ><article
+                  class="rounded-3xl border border-slate-200/70 bg-white p-5 dark:border-white/10 dark:bg-white/[.035]"
+                >
+                  <p class="text-sm text-slate-400" x-text="item.label"></p>
+                  <p
+                    class="mt-2 text-xl font-bold text-ink dark:text-white"
+                    x-text="item.value"
+                  ></p></article
+              ></template>
+            </div>
+            <article
+              class="mt-6 rounded-3xl border border-slate-200/70 bg-white p-6 dark:border-white/10 dark:bg-white/[.035]"
+            >
+              <div class="flex flex-wrap items-center gap-4">
+                <div>
+                  <h3 class="font-semibold text-ink dark:text-white">
+                    Espaço TI
+                  </h3>
+                  <p class="mt-1 text-sm text-slate-400">
+                    Limite desta execução
+                  </p>
+                </div>
+                <input
+                  x-model="pageLimit"
+                  type="number"
+                  min="1"
+                  max="100"
+                  class="ml-auto w-24 rounded-xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm dark:border-white/10 dark:bg-white/5"
+                /><span class="text-sm text-slate-400">páginas</span>
+              </div>
+              <div x-show="syncing || syncComplete" class="mt-7">
+                <div class="flex justify-between text-sm">
+                  <span
+                    x-text="syncing?'Processando '+syncCurrent+' de '+pageLimit+' páginas':'Sincronização concluída'"
+                  ></span
+                  ><span x-text="syncProgress+'%'"></span>
+                </div>
+                <div
+                  class="mt-3 h-2 overflow-hidden rounded-full bg-slate-100 dark:bg-white/10"
+                >
+                  <div
+                    class="h-full rounded-full bg-emerald-500 transition-all duration-300"
+                    :style="`width:${syncProgress}%`"
+                  ></div>
+                </div>
+                <div class="mt-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
+                  <template x-for="stat in syncStats"
+                    ><div class="rounded-2xl bg-slate-50 p-4 dark:bg-white/5">
+                      <p
+                        class="text-xl font-bold text-ink dark:text-white"
+                        x-text="stat.value"
+                      ></p>
+                      <p
+                        class="mt-1 text-xs text-slate-400"
+                        x-text="stat.label"
+                      ></p></div
+                  ></template>
+                </div>
+              </div>
+            </article>
+            <article
+              class="mt-6 rounded-3xl border border-slate-200/70 bg-white p-6 dark:border-white/10 dark:bg-white/[.035]"
+            >
+              <div class="flex items-center justify-between">
+                <div>
+                  <h3 class="font-semibold text-ink dark:text-white">
+                    Histórico de sincronizações
+                  </h3>
+                  <p class="mt-1 text-sm text-slate-400">
+                    Execuções realizadas nesta sessão
+                  </p>
+                </div>
+              </div>
+              <div x-show="syncHistory.length" class="mt-5 overflow-x-auto">
+                <table class="w-full min-w-[650px] text-left text-sm">
+                  <thead
+                    class="text-xs uppercase tracking-wider text-slate-400"
+                  >
+                    <tr>
+                      <th class="pb-4 font-medium">Data</th>
+                      <th class="pb-4 font-medium">Duração</th>
+                      <th class="pb-4 font-medium">Páginas</th>
+                      <th class="pb-4 font-medium">Resultado</th>
+                      <th class="pb-4 font-medium">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody class="divide-y divide-slate-100 dark:divide-white/10">
+                    <template x-for="row in syncHistory"
+                      ><tr>
+                        <td class="py-4" x-text="row.date"></td>
+                        <td x-text="row.duration"></td>
+                        <td x-text="row.pages"></td>
+                        <td x-text="row.result"></td>
+                        <td>
+                          <span
+                            class="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2.5 py-1 text-xs font-medium text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300"
+                            ><span class="material-symbols-rounded text-sm"
+                              >check_circle</span
+                            >Concluída</span
+                          >
+                        </td>
+                      </tr></template
+                    >
+                  </tbody>
+                </table>
+              </div>
+              <div x-show="!syncHistory.length" class="py-10 text-center">
+                <span
+                  class="material-symbols-rounded text-3xl text-slate-300 dark:text-slate-600"
+                  >history</span
+                >
+                <p class="mt-2 text-sm text-slate-400">
+                  Nenhuma sincronização realizada nesta sessão.
+                </p>
+              </div>
+            </article>
+            <div
+              class="mt-6 flex items-center justify-between rounded-3xl border border-dashed border-amber-200 bg-amber-50/60 p-5 dark:border-amber-400/20 dark:bg-amber-400/5"
+            >
+              <div>
+                <p class="font-semibold text-amber-900 dark:text-amber-200">
+                  Reconstruir base vetorial
+                </p>
+                <p class="mt-1 text-sm text-amber-700/70">
+                  Recurso planejado para uma próxima versão.
+                </p>
+              </div>
+              <button
+                disabled
+                class="rounded-xl bg-white px-4 py-2 text-sm font-semibold text-slate-300 dark:bg-white/5"
+              >
+                Em breve
+              </button>
+            </div>
+          </section>
+
+          <!-- Configurações
         <section x-show="currentPage==='settings'" x-transition.opacity x-cloak>
           <div><h2 class="text-3xl font-bold text-ink dark:text-white">Configurações</h2><p class="mt-2 text-slate-500">Gerencie integrações e parâmetros sem expor informações sensíveis.</p></div>
           <div class="mt-7 grid gap-6 xl:grid-cols-[220px_1fr]"><nav class="space-y-1"><template x-for="tab in settingTabs"><button @click="settingsTab=tab.id" :class="settingsTab===tab.id?'bg-indigo-50 text-indigo-700 dark:bg-indigo-400/10 dark:text-indigo-300':'text-slate-500'" class="focusable flex w-full items-center gap-2 rounded-xl px-3 py-2.5 text-sm font-medium"><span class="material-symbols-rounded" x-text="tab.icon"></span><span x-text="tab.label"></span></button></template></nav><div class="space-y-5">
@@ -127,53 +1046,641 @@
             <article x-show="settingsTab==='storage' || settingsTab==='security'" class="rounded-3xl border border-slate-200/70 bg-white p-8 text-center dark:border-white/10 dark:bg-white/[.035]"><span class="material-symbols-rounded text-4xl text-indigo-300">construction</span><h3 class="mt-3 font-semibold text-ink dark:text-white">Configuração protegida</h3><p class="mt-2 text-sm text-slate-400">Esta área será conectada ao backend em uma próxima etapa.</p></article>
             <div class="flex justify-end"><button @click="saveSettings()" class="focusable rounded-2xl bg-ink px-5 py-3 text-sm font-semibold text-white dark:bg-indigo-500">Salvar alterações</button></div>
           </div></div>
-        </section>
+        </section>-->
 
-        <!-- Sobre -->
-        <section x-show="currentPage==='about'" x-transition.opacity x-cloak>
-          <div class="mx-auto max-w-3xl py-8 text-center"><div class="mx-auto grid h-16 w-16 place-items-center rounded-3xl bg-gradient-to-br from-blue-100 to-purple-100 text-indigo-600 dark:from-indigo-400/20 dark:to-purple-400/20"><span class="material-symbols-rounded text-3xl">neurology</span></div><h2 class="mt-5 text-4xl font-bold tracking-tight text-ink dark:text-white">Conhecimento que volta a trabalhar</h2><p class="mt-4 text-lg leading-8 text-slate-500">O Memora transforma documentação histórica em evidências acessíveis para decisões de novos projetos.</p></div>
-          <article class="mt-6 rounded-[32px] border border-slate-200/70 bg-white p-7 dark:border-white/10 dark:bg-white/[.035]"><h3 class="text-center font-semibold text-ink dark:text-white">Como o Memora pensa</h3><div class="mt-8 grid gap-3 sm:grid-cols-3 xl:grid-cols-9"><template x-for="(stage,i) in pipeline" :key="stage.label"><div class="relative text-center"><span class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-400/10 dark:text-indigo-300"><span class="material-symbols-rounded" x-text="stage.icon"></span></span><p class="mt-2 text-xs font-medium text-slate-500" x-text="stage.label"></p><span x-show="i<pipeline.length-1" class="absolute -right-3 top-4 hidden text-slate-200 xl:block">→</span></div></template></div></article>
-          <div class="mt-6 grid gap-6 lg:grid-cols-2"><article class="rounded-3xl border border-slate-200/70 bg-white p-6 dark:border-white/10 dark:bg-white/[.035]"><h3 class="font-semibold text-ink dark:text-white">Por que existe</h3><ul class="mt-5 space-y-4 text-sm text-slate-500"><li class="flex gap-3"><span class="material-symbols-rounded text-emerald-500">check_circle</span>Evitar que decisões importantes se percam entre projetos.</li><li class="flex gap-3"><span class="material-symbols-rounded text-emerald-500">check_circle</span>Acelerar descobertas sem sacrificar rastreabilidade.</li><li class="flex gap-3"><span class="material-symbols-rounded text-emerald-500">check_circle</span>Reaproveitar soluções com contexto e evidências.</li></ul></article><article class="rounded-3xl border border-slate-200/70 bg-white p-6 dark:border-white/10 dark:bg-white/[.035]"><h3 class="font-semibold text-ink dark:text-white">No horizonte</h3><div class="mt-5 flex flex-wrap gap-2"><template x-for="future in futures"><span class="rounded-full border border-slate-200 px-3 py-2 text-xs text-slate-500 dark:border-white/10" x-text="future+' · planejado'"></span></template></div></article></div>
-        </section>
-      </main>
+          <!-- Sobre -->
+          <section x-show="currentPage==='about'" x-transition.opacity x-cloak>
+            <div class="mx-auto max-w-3xl py-8 text-center">
+              <div
+                class="mx-auto grid h-16 w-16 place-items-center rounded-3xl bg-gradient-to-br from-blue-100 to-purple-100 text-indigo-600 dark:from-indigo-400/20 dark:to-purple-400/20"
+              >
+                <span class="material-symbols-rounded text-3xl">neurology</span>
+              </div>
+              <h2
+                class="mt-5 text-4xl font-bold tracking-tight text-ink dark:text-white"
+              >
+                Conhecimento que volta a trabalhar
+              </h2>
+              <p class="mt-4 text-lg leading-8 text-slate-500">
+                O Memora transforma documentação histórica em evidências
+                acessíveis para decisões de novos projetos.
+              </p>
+            </div>
+            <article
+              class="mt-6 rounded-[32px] border border-slate-200/70 bg-white p-7 dark:border-white/10 dark:bg-white/[.035]"
+            >
+              <h3 class="text-center font-semibold text-ink dark:text-white">
+                Como o Memora pensa
+              </h3>
+              <div class="mt-8 grid gap-3 sm:grid-cols-3 xl:grid-cols-9">
+                <template x-for="(stage,i) in pipeline" :key="stage.label"
+                  ><div class="relative text-center">
+                    <span
+                      class="mx-auto grid h-12 w-12 place-items-center rounded-2xl bg-indigo-50 text-indigo-600 dark:bg-indigo-400/10 dark:text-indigo-300"
+                      ><span
+                        class="material-symbols-rounded"
+                        x-text="stage.icon"
+                      ></span
+                    ></span>
+                    <p
+                      class="mt-2 text-xs font-medium text-slate-500"
+                      x-text="stage.label"
+                    ></p>
+                    <span
+                      x-show="i<pipeline.length-1"
+                      class="absolute -right-3 top-4 hidden text-slate-200 xl:block"
+                      >→</span
+                    >
+                  </div></template
+                >
+              </div>
+            </article>
+            <div class="mt-6 grid gap-6 lg:grid-cols-2">
+              <article
+                class="rounded-3xl border border-slate-200/70 bg-white p-6 dark:border-white/10 dark:bg-white/[.035]"
+              >
+                <h3 class="font-semibold text-ink dark:text-white">
+                  Por que existe
+                </h3>
+                <ul class="mt-5 space-y-4 text-sm text-slate-500">
+                  <li class="flex gap-3">
+                    <span class="material-symbols-rounded text-emerald-500"
+                      >check_circle</span
+                    >Evitar que decisões importantes se percam entre projetos.
+                  </li>
+                  <li class="flex gap-3">
+                    <span class="material-symbols-rounded text-emerald-500"
+                      >check_circle</span
+                    >Acelerar descobertas sem sacrificar rastreabilidade.
+                  </li>
+                  <li class="flex gap-3">
+                    <span class="material-symbols-rounded text-emerald-500"
+                      >check_circle</span
+                    >Reaproveitar soluções com contexto e evidências.
+                  </li>
+                </ul>
+              </article>
+              <article
+                class="rounded-3xl border border-slate-200/70 bg-white p-6 dark:border-white/10 dark:bg-white/[.035]"
+              >
+                <h3 class="font-semibold text-ink dark:text-white">
+                  No horizonte
+                </h3>
+                <div class="mt-5 flex flex-wrap gap-2">
+                  <template x-for="future in futures"
+                    ><span
+                      class="rounded-full border border-slate-200 px-3 py-2 text-xs text-slate-500 dark:border-white/10"
+                      x-text="future+' · planejado'"
+                    ></span
+                  ></template>
+                </div>
+              </article>
+            </div>
+          </section>
+        </main>
+      </div>
     </div>
-  </div>
 
-  <!-- Modal de evidência -->
-  <div x-show="modal" x-cloak x-transition.opacity class="fixed inset-0 z-[70] grid place-items-center bg-slate-950/35 p-4 backdrop-blur-sm" @click.self="modal=null" role="dialog" aria-modal="true">
-    <div x-show="modal==='evidence'" x-transition.scale class="w-full max-w-xl rounded-[28px] bg-white p-6 shadow-2xl dark:bg-[#1a2030]"><div class="flex items-start justify-between"><div><p class="text-xs font-semibold text-indigo-600">IT-004 · Chunk 12</p><h3 class="mt-1 text-lg font-semibold text-ink dark:text-white">Portal de Autosserviço de TI</h3></div><button @click="modal=null" class="focusable rounded-xl p-2 hover:bg-slate-50 dark:hover:bg-white/5"><span class="material-symbols-rounded">close</span></button></div><blockquote class="mt-5 rounded-2xl border-l-4 border-indigo-300 bg-indigo-50/60 p-5 text-sm leading-7 text-slate-600 dark:bg-indigo-400/10 dark:text-slate-300">O portal utiliza autenticação SSO corporativa, catálogo de serviços categorizado e acompanhamento de chamados com indicadores de SLA por prioridade.</blockquote><div class="mt-5 flex justify-end gap-2"><button @click="copyText('Trecho copiado')" class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold dark:border-white/10">Copiar trecho</button><button @click="toast('Abrindo fonte simulada','info');modal=null" class="rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white">Abrir no Confluence</button></div></div>
-  </div>
+    <!-- Modal de evidência -->
+    <div
+      x-show="modal"
+      x-cloak
+      x-transition.opacity
+      class="fixed inset-0 z-[70] grid place-items-center bg-slate-950/35 p-4 backdrop-blur-sm"
+      @click.self="modal=null"
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        x-show="modal==='evidence'"
+        x-transition.scale
+        class="w-full max-w-xl rounded-[28px] bg-white p-6 shadow-2xl dark:bg-[#1a2030]"
+      >
+        <div class="flex items-start justify-between">
+          <div>
+            <p class="text-xs font-semibold text-indigo-600">
+              IT-004 · Chunk 12
+            </p>
+            <h3 class="mt-1 text-lg font-semibold text-ink dark:text-white">
+              Portal de Autosserviço de TI
+            </h3>
+          </div>
+          <button
+            @click="modal=null"
+            class="focusable rounded-xl p-2 hover:bg-slate-50 dark:hover:bg-white/5"
+          >
+            <span class="material-symbols-rounded">close</span>
+          </button>
+        </div>
+        <blockquote
+          class="mt-5 rounded-2xl border-l-4 border-indigo-300 bg-indigo-50/60 p-5 text-sm leading-7 text-slate-600 dark:bg-indigo-400/10 dark:text-slate-300"
+        >
+          O portal utiliza autenticação SSO corporativa, catálogo de serviços
+          categorizado e acompanhamento de chamados com indicadores de SLA por
+          prioridade.
+        </blockquote>
+        <div class="mt-5 flex justify-end gap-2">
+          <button
+            @click="copyText('Trecho copiado')"
+            class="rounded-xl border border-slate-200 px-4 py-2 text-sm font-semibold dark:border-white/10"
+          >
+            Copiar trecho</button
+          ><button
+            @click="toast('Abrindo fonte simulada','info');modal=null"
+            class="rounded-xl bg-indigo-500 px-4 py-2 text-sm font-semibold text-white"
+          >
+            Abrir no Confluence
+          </button>
+        </div>
+      </div>
+    </div>
 
-  <!-- Toast -->
-  <div x-show="notice.show" x-cloak x-transition class="fixed bottom-5 right-5 z-[80] flex max-w-sm items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-xl dark:border-white/10 dark:bg-[#202636]" role="status"><span class="material-symbols-rounded" :class="notice.type==='success'?'text-emerald-500':'text-indigo-500'" x-text="notice.type==='success'?'check_circle':'info'"></span><p class="text-sm font-medium" x-text="notice.message"></p></div>
+    <!-- Toast -->
+    <div
+      x-show="notice.show"
+      x-cloak
+      x-transition
+      class="fixed bottom-5 right-5 z-[80] flex max-w-sm items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-3 shadow-xl dark:border-white/10 dark:bg-[#202636]"
+      role="status"
+    >
+      <span
+        class="material-symbols-rounded"
+        :class="notice.type==='success'?'text-emerald-500':'text-indigo-500'"
+        x-text="notice.type==='success'?'check_circle':'info'"
+      ></span>
+      <p class="text-sm font-medium" x-text="notice.message"></p>
+    </div>
 
-  <script defer src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"></script>
-  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
-  <script>
-    function memoraApp(){return{
-      currentPage:'overview',sidebarOpen:true,mobileOpen:false,darkMode:false,modal:null,notice:{show:false,message:'',type:'success'},
-      navigation:[{id:'overview',label:'Visão geral',icon:'space_dashboard'},{id:'analyze',label:'Analisar demanda',icon:'auto_awesome'},{id:'search',label:'Busca semântica',icon:'search'},{id:'sync',label:'Sincronização',icon:'sync'},{id:'settings',label:'Configurações',icon:'tune'},{id:'about',label:'Sobre',icon:'info'}],
-      pageInfo:{overview:['Visão geral','Saúde e atividade da base de conhecimento'],analyze:['Analisar demanda','Descubra o que sua equipe já sabe'],search:['Busca semântica','Encontre conhecimento por significado'],sync:['Sincronização','Atualize a memória corporativa'],settings:['Configurações','Integrações, modelos e parâmetros'],about:['Sobre o Memora','Conhecimento corporativo recuperável']},
-      metrics:[{label:'Documentos indexados',value:'—',detail:'Base atual',icon:'description'},{label:'Chunks disponíveis',value:'—',detail:'Base atual',icon:'dataset'},{label:'Última sincronização',value:'Não registrada',detail:'Nesta sessão',icon:'sync'},{label:'Provider de IA',value:'—',detail:'Configuração atual',icon:'neurology'}],
-      services:[{name:'Confluence',status:'Verificando...',active:false},{name:'ChromaDB',status:'Verificando...',active:false},{name:'Embeddings',status:'Verificando...',active:false},{name:'LLM',status:'Verificando...',active:false}],
-      activities:[],
-      analysisInput:'',advanced:false,analyzing:false,analysisResult:false,analysisProgress:0,analysisStep:0,analysisTimer:null,analysisOptions:{topK:8,similarity:70},analysisSteps:['Interpretando a demanda','Buscando projetos','Avaliando evidências','Gerando recomendações'],
-      analysisSections:[],analysisSources:[],
-      searchQuery:'',searchState:'idle',filtersOpen:false,searchLimit:5,technicalOpen:null,searchExamples:['portal com login e dashboard','automação de faturamento','monitoramento de SLA','integração SSO','pipeline de dados'],searchResults:[{id:'IT-004',title:'Portal de Autosserviço de TI',similarity:94,chunk:12,excerpt:'Portal interno com catálogo de serviços, autenticação corporativa e acompanhamento completo do ciclo de chamados.'},{id:'IT-003',title:'Sistema de Suporte Técnico Omnichannel',similarity:91,chunk:8,excerpt:'Centralização de solicitações, categorização automática, filas de atendimento e indicadores operacionais.'},{id:'IT-010',title:'Integração SSO e IAM Corporativo',similarity:87,chunk:4,excerpt:'Padrões de autenticação SSO, provisionamento de usuários, perfis e trilhas de auditoria.'},{id:'IT-011',title:'Monitoramento de SLAs Operacionais',similarity:83,chunk:17,excerpt:'Métricas por prioridade, alertas de vencimento e dashboards executivos para gestores.'}],
-      syncing:false,syncComplete:false,syncProgress:0,syncCurrent:0,pageLimit:24,syncTimer:null,syncMetrics:[{label:'Confluence',value:'Verificando...'},{label:'Documentos',value:'—'},{label:'Chunks',value:'—'},{label:'Última sincronização',value:'Não registrada'}],syncStats:[{label:'Encontrados',value:0},{label:'Processados',value:0},{label:'Chunks criados',value:0},{label:'Falhas',value:0}],syncHistory:[],
-      settingsTab:'confluence',settings:{provider:'Ollama',model:''},availableModels:{Ollama:[],OpenAI:[],Gemini:[]},settingTabs:[{id:'confluence',label:'Confluence',icon:'cloud'},{id:'ai',label:'Provider de IA',icon:'neurology'},{id:'rag',label:'Parâmetros RAG',icon:'tune'},{id:'storage',label:'Banco vetorial',icon:'database'},{id:'security',label:'Segurança',icon:'shield'}],
-      pipeline:[{label:'Confluence',icon:'cloud'},{label:'Extração',icon:'download'},{label:'Limpeza',icon:'cleaning_services'},{label:'Chunks',icon:'segment'},{label:'Embeddings',icon:'data_array'},{label:'ChromaDB',icon:'database'},{label:'Busca',icon:'search'},{label:'LLM',icon:'neurology'},{label:'Análise',icon:'fact_check'}],futures:['PDF e DOCX','OCR','Jira','Azure DevOps','Autenticação','Avaliação de qualidade'],
-      get pageMeta(){const p=this.pageInfo[this.currentPage];return{title:p[0],caption:p[1]}},
-      init(){this.darkMode=localStorage.getItem('memora-theme')==='dark';this.applyTheme();this.loadStatus()},applyTheme(){document.documentElement.classList.toggle('dark',this.darkMode);localStorage.setItem('memora-theme',this.darkMode?'dark':'light')},
-      go(page){this.currentPage=page;this.mobileOpen=false;window.scrollTo({top:0,behavior:'smooth'})},toast(message,type='success'){this.notice={show:true,message,type};setTimeout(()=>this.notice.show=false,2800)},copyText(message){navigator.clipboard?.writeText('Conteúdo demonstrativo do Memora');this.toast(message)},copyAnalysis(){const text=this.analysisSections.map(section=>`${section.number}. ${section.title}\n${[...section.paragraphs,...section.items.map(item=>'• '+item)].join('\n')}`).join('\n\n');navigator.clipboard?.writeText(text);this.toast('Análise copiada')},
-      async api(path,options={}){const response=await fetch(path,{headers:{'Content-Type':'application/json'},...options});const data=await response.json();if(!response.ok)throw new Error(data.detail||'Não foi possível concluir a operação.');return data},
-      async loadStatus(){try{const data=await this.api('/api/status');const documents=Number(data.document_count).toLocaleString('pt-BR'),chunks=Number(data.vector_count).toLocaleString('pt-BR');this.metrics[0].value=documents;this.metrics[1].value=chunks;this.syncMetrics[0].value=data.confluence_configured?'Configurado':'Incompleto';this.syncMetrics[1].value=documents;this.syncMetrics[2].value=chunks;const names={ollama:'Ollama',openai:'OpenAI',gemini:'Gemini'};this.settings.provider=names[data.provider]||'Ollama';this.metrics[3].value=this.settings.provider;this.services=[{name:'Confluence',status:data.confluence_configured?'Configurado':'Configuração incompleta',active:data.confluence_configured},{name:'ChromaDB',status:data.vector_store_ready?'Base vetorial ativa':'Base ainda vazia',active:data.vector_store_ready},{name:'Embeddings',status:data.embedding_configured?'Modelo configurado':'Modelo não configurado',active:data.embedding_configured},{name:'LLM',status:data.llm_configured?this.settings.provider+' configurado':'Provider incompleto',active:data.llm_configured}];await this.loadModels()}catch(error){this.toast(error.message,'info')}},
-      async loadModels(){const provider=this.settings.provider.toLowerCase();try{const data=await this.api('/api/models?provider='+encodeURIComponent(provider));this.availableModels[this.settings.provider]=data.models;this.settings.model=data.models[0]||''}catch(error){this.availableModels[this.settings.provider]=[];this.settings.model='';this.toast('Não foi possível listar os modelos deste provider.','info')}},
-      async runAnalysis(){if(!this.analysisInput.trim()||!this.settings.model){this.toast(this.settings.model?'Descreva a demanda.':'Nenhum modelo disponível para o provider selecionado.','info');return}this.analyzing=true;this.analysisResult=false;this.analysisSections=[];this.analysisSources=[];this.analysisProgress=8;this.analysisStep=0;clearInterval(this.analysisTimer);this.analysisTimer=setInterval(()=>{this.analysisProgress=Math.min(88,this.analysisProgress+4);this.analysisStep=Math.min(3,Math.floor(this.analysisProgress/24))},350);try{const data=await this.api('/api/analyze',{method:'POST',body:JSON.stringify({query:this.analysisInput,top_k:Number(this.analysisOptions.topK),provider:this.settings.provider.toLowerCase(),model:this.settings.model})});this.analysisSections=(data.sections||[]).filter(section=>section.number!==9);this.analysisSources=data.sources||[];this.analysisProgress=100;this.analysisStep=3;this.analysisResult=true;this.recordActivity('Análise de demanda concluída');this.toast('Análise concluída')}catch(error){this.toast(error.message,'info')}finally{clearInterval(this.analysisTimer);this.analyzing=false}},
-      async runSearch(){if(!this.searchQuery.trim()){this.toast('Digite algo para buscar','info');return}this.searchState='loading';try{const data=await this.api('/api/search',{method:'POST',body:JSON.stringify({query:this.searchQuery,top_k:Number(this.searchLimit)})});this.searchResults=data.results.map(result=>({id:result.source_id||'Fonte',title:result.title,similarity:Math.max(0,Math.round((1-result.distance)*100)),chunk:result.chunk_index,excerpt:result.content,url:result.url}));this.searchState='results';this.recordActivity('Busca por “'+this.searchQuery.slice(0,45)+'”');this.toast('Conhecimento encontrado')}catch(error){this.searchState='idle';this.toast(error.message,'info')}},useInAnalysis(result){this.analysisInput=`Considere o projeto ${result.id} — ${result.title} como referência para esta nova demanda: `;this.go('analyze')},
-      async runSync(){this.syncing=true;this.syncComplete=false;this.syncProgress=12;this.syncCurrent=0;const startedAt=Date.now();clearInterval(this.syncTimer);this.syncTimer=setInterval(()=>{this.syncProgress=Math.min(90,this.syncProgress+3);this.syncCurrent=Math.ceil(this.pageLimit*this.syncProgress/100)},300);try{const data=await this.api('/api/sync',{method:'POST',body:JSON.stringify({limit:Number(this.pageLimit)})});this.syncStats=[{label:'Encontrados',value:data.pages_found},{label:'Processados',value:data.documents_processed},{label:'Chunks criados',value:data.chunks_indexed},{label:'Falhas',value:0}];this.syncMetrics[2].value=Number(data.total_chunks).toLocaleString('pt-BR');this.syncMetrics[3].value='Agora';this.metrics[2].value='Agora';this.syncProgress=100;this.syncCurrent=Number(this.pageLimit);this.syncComplete=true;this.syncHistory.unshift({date:new Date().toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'}),duration:Math.max(1,Math.round((Date.now()-startedAt)/1000))+'s',pages:data.pages_found,result:data.chunks_indexed+' chunks'});this.recordActivity('Sincronização do Confluence concluída');await this.loadStatus();this.toast('Sincronização concluída')}catch(error){this.toast(error.message,'info')}finally{clearInterval(this.syncTimer);this.syncing=false}},
-      recordActivity(text){this.activities.unshift({id:Date.now()+Math.random(),text,time:'agora'});this.activities=this.activities.slice(0,5)},selectDefaultModel(){this.settings.model='';this.loadModels()},testConnection(){this.loadStatus().then(()=>this.toast('Conexão verificada'))},saveSettings(){this.toast('A seleção vale para esta sessão. Variáveis permanentes continuam no servidor.','info')}
-    }}
-  </script>
-</body>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/@alpinejs/collapse@3.x.x/dist/cdn.min.js"
+    ></script>
+    <script
+      defer
+      src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"
+    ></script>
+    <script>
+      function memoraApp() {
+        return {
+          currentPage: "overview",
+          sidebarOpen: true,
+          mobileOpen: false,
+          darkMode: false,
+          modal: null,
+          notice: { show: false, message: "", type: "success" },
+          navigation: [
+            { id: "overview", label: "Visão geral", icon: "space_dashboard" },
+            { id: "analyze", label: "Analisar demanda", icon: "auto_awesome" },
+            { id: "search", label: "Busca semântica", icon: "search" },
+            { id: "sync", label: "Sincronização", icon: "sync" },
+            { id: "about", label: "Sobre", icon: "info" },
+          ],
+          pageInfo: {
+            overview: [
+              "Visão geral",
+              "Saúde e atividade da base de conhecimento",
+            ],
+            analyze: ["Analisar demanda", "Descubra o que sua equipe já sabe"],
+            search: [
+              "Busca semântica",
+              "Encontre conhecimento por significado",
+            ],
+            sync: ["Sincronização", "Atualize a memória corporativa"],
+            
+            about: ["Sobre o Memora", "Conhecimento corporativo recuperável"],
+          },
+          metrics: [
+            {
+              label: "Documentos indexados",
+              value: "—",
+              detail: "Base atual",
+              icon: "description",
+            },
+            {
+              label: "Chunks disponíveis",
+              value: "—",
+              detail: "Base atual",
+              icon: "dataset",
+            },
+            {
+              label: "Última sincronização",
+              value: "Não registrada",
+              detail: "Nesta sessão",
+              icon: "sync",
+            },
+            {
+              label: "Provider de IA",
+              value: "—",
+              detail: "Configuração atual",
+              icon: "neurology",
+            },
+          ],
+          services: [
+            { name: "Confluence", status: "Verificando...", active: false },
+            { name: "ChromaDB", status: "Verificando...", active: false },
+            { name: "Embeddings", status: "Verificando...", active: false },
+            { name: "LLM", status: "Verificando...", active: false },
+          ],
+          activities: [],
+          analysisInput: "",
+          advanced: false,
+          analyzing: false,
+          analysisResult: false,
+          analysisProgress: 0,
+          analysisStep: 0,
+          analysisTimer: null,
+          analysisOptions: { topK: 8, similarity: 70 },
+          analysisSteps: [
+            "Interpretando a demanda",
+            "Buscando projetos",
+            "Avaliando evidências",
+            "Gerando recomendações",
+          ],
+          analysisSections: [],
+          analysisSources: [],
+          searchQuery: "",
+          searchState: "idle",
+          filtersOpen: false,
+          searchLimit: 5,
+          technicalOpen: null,
+          searchExamples: [
+            "portal com login e dashboard",
+            "automação de faturamento",
+            "monitoramento de SLA",
+            "integração SSO",
+            "pipeline de dados",
+          ],
+          searchResults: [
+            {
+              id: "IT-004",
+              title: "Portal de Autosserviço de TI",
+              similarity: 94,
+              chunk: 12,
+              excerpt:
+                "Portal interno com catálogo de serviços, autenticação corporativa e acompanhamento completo do ciclo de chamados.",
+            },
+            {
+              id: "IT-003",
+              title: "Sistema de Suporte Técnico Omnichannel",
+              similarity: 91,
+              chunk: 8,
+              excerpt:
+                "Centralização de solicitações, categorização automática, filas de atendimento e indicadores operacionais.",
+            },
+            {
+              id: "IT-010",
+              title: "Integração SSO e IAM Corporativo",
+              similarity: 87,
+              chunk: 4,
+              excerpt:
+                "Padrões de autenticação SSO, provisionamento de usuários, perfis e trilhas de auditoria.",
+            },
+            {
+              id: "IT-011",
+              title: "Monitoramento de SLAs Operacionais",
+              similarity: 83,
+              chunk: 17,
+              excerpt:
+                "Métricas por prioridade, alertas de vencimento e dashboards executivos para gestores.",
+            },
+          ],
+          syncing: false,
+          syncComplete: false,
+          syncProgress: 0,
+          syncCurrent: 0,
+          pageLimit: 24,
+          syncTimer: null,
+          syncMetrics: [
+            { label: "Confluence", value: "Verificando..." },
+            { label: "Documentos", value: "—" },
+            { label: "Chunks", value: "—" },
+            { label: "Última sincronização", value: "Não registrada" },
+          ],
+          syncStats: [
+            { label: "Encontrados", value: 0 },
+            { label: "Processados", value: 0 },
+            { label: "Chunks criados", value: 0 },
+            { label: "Falhas", value: 0 },
+          ],
+          syncHistory: [],
+          settingsTab: "confluence",
+          settings: { provider: "Ollama", model: "" },
+          availableModels: { Ollama: [], OpenAI: [], Gemini: [] },
+          settingTabs: [
+            { id: "confluence", label: "Confluence", icon: "cloud" },
+            { id: "ai", label: "Provider de IA", icon: "neurology" },
+            { id: "rag", label: "Parâmetros RAG", icon: "tune" },
+            { id: "storage", label: "Banco vetorial", icon: "database" },
+            { id: "security", label: "Segurança", icon: "shield" },
+          ],
+          pipeline: [
+            { label: "Confluence", icon: "cloud" },
+            { label: "Extração", icon: "download" },
+            { label: "Limpeza", icon: "cleaning_services" },
+            { label: "Chunks", icon: "segment" },
+            { label: "Embeddings", icon: "data_array" },
+            { label: "ChromaDB", icon: "database" },
+            { label: "Busca", icon: "search" },
+            { label: "LLM", icon: "neurology" },
+            { label: "Análise", icon: "fact_check" },
+          ],
+          futures: [
+            "PDF e DOCX",
+            "OCR",
+            "Jira",
+            "Azure DevOps",
+            "Autenticação",
+            "Avaliação de qualidade",
+          ],
+          get pageMeta() {
+            const p = this.pageInfo[this.currentPage];
+            return { title: p[0], caption: p[1] };
+          },
+          init() {
+            this.darkMode = localStorage.getItem("memora-theme") === "dark";
+            this.applyTheme();
+            this.loadStatus();
+          },
+          applyTheme() {
+            document.documentElement.classList.toggle("dark", this.darkMode);
+            localStorage.setItem(
+              "memora-theme",
+              this.darkMode ? "dark" : "light",
+            );
+          },
+          go(page) {
+            this.currentPage = page;
+            this.mobileOpen = false;
+            window.scrollTo({ top: 0, behavior: "smooth" });
+          },
+          toast(message, type = "success") {
+            this.notice = { show: true, message, type };
+            setTimeout(() => (this.notice.show = false), 2800);
+          },
+          copyText(message) {
+            navigator.clipboard?.writeText("Conteúdo demonstrativo do Memora");
+            this.toast(message);
+          },
+          copyAnalysis() {
+            const text = this.analysisSections
+              .map(
+                (section) =>
+                  `${section.number}. ${section.title}\n${[...section.paragraphs, ...section.items.map((item) => "• " + item)].join("\n")}`,
+              )
+              .join("\n\n");
+            navigator.clipboard?.writeText(text);
+            this.toast("Análise copiada");
+          },
+          async api(path, options = {}) {
+            const response = await fetch(path, {
+              headers: { "Content-Type": "application/json" },
+              ...options,
+            });
+            const data = await response.json();
+            if (!response.ok)
+              throw new Error(
+                data.detail || "Não foi possível concluir a operação.",
+              );
+            return data;
+          },
+          async loadStatus() {
+            try {
+              const data = await this.api("/api/status");
+              const documents = Number(data.document_count).toLocaleString(
+                  "pt-BR",
+                ),
+                chunks = Number(data.vector_count).toLocaleString("pt-BR");
+              this.metrics[0].value = documents;
+              this.metrics[1].value = chunks;
+              this.syncMetrics[0].value = data.confluence_configured
+                ? "Configurado"
+                : "Incompleto";
+              this.syncMetrics[1].value = documents;
+              this.syncMetrics[2].value = chunks;
+              const names = {
+                ollama: "Ollama",
+                openai: "OpenAI",
+                gemini: "Gemini",
+              };
+              this.settings.provider = names[data.provider] || "Ollama";
+              this.metrics[3].value = this.settings.provider;
+              this.services = [
+                {
+                  name: "Confluence",
+                  status: data.confluence_configured
+                    ? "Configurado"
+                    : "Configuração incompleta",
+                  active: data.confluence_configured,
+                },
+                {
+                  name: "ChromaDB",
+                  status: data.vector_store_ready
+                    ? "Base vetorial ativa"
+                    : "Base ainda vazia",
+                  active: data.vector_store_ready,
+                },
+                {
+                  name: "Embeddings",
+                  status: data.embedding_configured
+                    ? "Modelo configurado"
+                    : "Modelo não configurado",
+                  active: data.embedding_configured,
+                },
+                {
+                  name: "LLM",
+                  status: data.llm_configured
+                    ? this.settings.provider + " configurado"
+                    : "Provider incompleto",
+                  active: data.llm_configured,
+                },
+              ];
+              await this.loadModels();
+            } catch (error) {
+              this.toast(error.message, "info");
+            }
+          },
+          async loadModels() {
+            const provider = this.settings.provider.toLowerCase();
+            try {
+              const data = await this.api(
+                "/api/models?provider=" + encodeURIComponent(provider),
+              );
+              this.availableModels[this.settings.provider] = data.models;
+              this.settings.model = data.models[0] || "";
+            } catch (error) {
+              this.availableModels[this.settings.provider] = [];
+              this.settings.model = "";
+              this.toast(
+                "Não foi possível listar os modelos deste provider.",
+                "info",
+              );
+            }
+          },
+          async runAnalysis() {
+            if (!this.analysisInput.trim() || !this.settings.model) {
+              this.toast(
+                this.settings.model
+                  ? "Descreva a demanda."
+                  : "Nenhum modelo disponível para o provider selecionado.",
+                "info",
+              );
+              return;
+            }
+            this.analyzing = true;
+            this.analysisResult = false;
+            this.analysisSections = [];
+            this.analysisSources = [];
+            this.analysisProgress = 8;
+            this.analysisStep = 0;
+            clearInterval(this.analysisTimer);
+            this.analysisTimer = setInterval(() => {
+              this.analysisProgress = Math.min(88, this.analysisProgress + 4);
+              this.analysisStep = Math.min(
+                3,
+                Math.floor(this.analysisProgress / 24),
+              );
+            }, 350);
+            try {
+              const data = await this.api("/api/analyze", {
+                method: "POST",
+                body: JSON.stringify({
+                  query: this.analysisInput,
+                  top_k: Number(this.analysisOptions.topK),
+                  provider: this.settings.provider.toLowerCase(),
+                  model: this.settings.model,
+                }),
+              });
+              this.analysisSections = (data.sections || []).filter(
+                (section) => section.number !== 9,
+              );
+              this.analysisSources = data.sources || [];
+              this.analysisProgress = 100;
+              this.analysisStep = 3;
+              this.analysisResult = true;
+              this.recordActivity("Análise de demanda concluída");
+              this.toast("Análise concluída");
+            } catch (error) {
+              this.toast(error.message, "info");
+            } finally {
+              clearInterval(this.analysisTimer);
+              this.analyzing = false;
+            }
+          },
+          async runSearch() {
+            if (!this.searchQuery.trim()) {
+              this.toast("Digite algo para buscar", "info");
+              return;
+            }
+            this.searchState = "loading";
+            try {
+              const data = await this.api("/api/search", {
+                method: "POST",
+                body: JSON.stringify({
+                  query: this.searchQuery,
+                  top_k: Number(this.searchLimit),
+                }),
+              });
+              this.searchResults = data.results.map((result) => ({
+                id: result.source_id || "Fonte",
+                title: result.title,
+                similarity: Math.max(
+                  0,
+                  Math.round((1 - result.distance) * 100),
+                ),
+                chunk: result.chunk_index,
+                excerpt: result.content,
+                url: result.url,
+              }));
+              this.searchState = "results";
+              this.recordActivity(
+                "Busca por “" + this.searchQuery.slice(0, 45) + "”",
+              );
+              this.toast("Conhecimento encontrado");
+            } catch (error) {
+              this.searchState = "idle";
+              this.toast(error.message, "info");
+            }
+          },
+          useInAnalysis(result) {
+            this.analysisInput = `Considere o projeto ${result.id} — ${result.title} como referência para esta nova demanda: `;
+            this.go("analyze");
+          },
+          async runSync() {
+            this.syncing = true;
+            this.syncComplete = false;
+            this.syncProgress = 12;
+            this.syncCurrent = 0;
+            const startedAt = Date.now();
+            clearInterval(this.syncTimer);
+            this.syncTimer = setInterval(() => {
+              this.syncProgress = Math.min(90, this.syncProgress + 3);
+              this.syncCurrent = Math.ceil(
+                (this.pageLimit * this.syncProgress) / 100,
+              );
+            }, 300);
+            try {
+              const data = await this.api("/api/sync", {
+                method: "POST",
+                body: JSON.stringify({ limit: Number(this.pageLimit) }),
+              });
+              this.syncStats = [
+                { label: "Encontrados", value: data.pages_found },
+                { label: "Processados", value: data.documents_processed },
+                { label: "Chunks criados", value: data.chunks_indexed },
+                { label: "Falhas", value: 0 },
+              ];
+              this.syncMetrics[2].value = Number(
+                data.total_chunks,
+              ).toLocaleString("pt-BR");
+              this.syncMetrics[3].value = "Agora";
+              this.metrics[2].value = "Agora";
+              this.syncProgress = 100;
+              this.syncCurrent = Number(this.pageLimit);
+              this.syncComplete = true;
+              this.syncHistory.unshift({
+                date: new Date().toLocaleTimeString("pt-BR", {
+                  hour: "2-digit",
+                  minute: "2-digit",
+                }),
+                duration:
+                  Math.max(1, Math.round((Date.now() - startedAt) / 1000)) +
+                  "s",
+                pages: data.pages_found,
+                result: data.chunks_indexed + " chunks",
+              });
+              this.recordActivity("Sincronização do Confluence concluída");
+              await this.loadStatus();
+              this.toast("Sincronização concluída");
+            } catch (error) {
+              this.toast(error.message, "info");
+            } finally {
+              clearInterval(this.syncTimer);
+              this.syncing = false;
+            }
+          },
+          recordActivity(text) {
+            this.activities.unshift({
+              id: Date.now() + Math.random(),
+              text,
+              time: "agora",
+            });
+            this.activities = this.activities.slice(0, 5);
+          },
+          selectDefaultModel() {
+            this.settings.model = "";
+            this.loadModels();
+          },
+          testConnection() {
+            this.loadStatus().then(() => this.toast("Conexão verificada"));
+          },
+          saveSettings() {
+            this.toast(
+              "A seleção vale para esta sessão. Variáveis permanentes continuam no servidor.",
+              "info",
+            );
+          },
+        };
+      }
+    </script>
+  </body>
 </html>

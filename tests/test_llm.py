@@ -7,6 +7,7 @@ import requests
 from llm import create_llm_provider
 from llm.base import LLMProviderError
 from llm.ollama_provider import OllamaProvider
+from llm.openai_provider import _friendly_openai_error
 
 
 def test_factory_creates_ollama_provider() -> None:
@@ -30,6 +31,27 @@ def test_ollama_connection_error_is_friendly(monkeypatch: Any) -> None:
 
     with pytest.raises(LLMProviderError, match="Verifique se o Ollama está rodando"):
         provider.generate("prompt")
+
+
+def test_openai_quota_error_is_friendly_and_hides_payload() -> None:
+    error = SimpleNamespace(
+        status_code=429,
+        code="insufficient_quota",
+        body={"error": {"code": "insufficient_quota", "message": "raw provider payload"}},
+    )
+
+    message = _friendly_openai_error(error)  # type: ignore[arg-type]
+
+    assert "cota da OpenAI" in message
+    assert "raw provider payload" not in message
+
+
+def test_openai_rate_limit_has_actionable_message() -> None:
+    error = SimpleNamespace(status_code=429, code="rate_limit_exceeded", body={})
+
+    message = _friendly_openai_error(error)  # type: ignore[arg-type]
+
+    assert "Tente novamente" in message
 
 
 def test_gemini_uses_google_genai_client(monkeypatch: Any) -> None:
