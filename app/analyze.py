@@ -10,11 +10,8 @@ from rich.markdown import Markdown
 from rich.table import Table
 
 from app.config import ConfigurationError, load_settings
-from indexing.embeddings import EmbeddingModel
-from indexing.vector_store import VectorStore
-from llm import LLMProviderError, create_llm_provider
-from rag.answer_generator import AnswerGenerator
-from rag.retriever import RagRetriever
+from llm import LLMProviderError
+from services.memora_service import MemoraService, MemoraServiceError
 
 console = Console()
 
@@ -40,16 +37,7 @@ def _print_sources(sources: list[dict[str, Any]]) -> None:
 
 def run(meeting_notes: str) -> None:
     settings = load_settings()
-    vector_store = VectorStore(
-        db_path=settings.chroma_db_path,
-        collection_name=settings.chroma_collection_name,
-    )
-    if vector_store.count() == 0:
-        console.print(
-            "[yellow]A base vetorial está vazia. Execute primeiro:[/yellow] "
-            "[bold]python -m app.index_confluence[/bold]"
-        )
-        return
+    service = MemoraService(settings=settings)
 
     console.print(
         f"[bold green]Memora[/bold green] — análise RAG com provider "
@@ -58,17 +46,10 @@ def run(meeting_notes: str) -> None:
     console.print(
         f"Carregando modelo de embeddings [cyan]{settings.embedding_model}[/cyan]..."
     )
-    embedding_model = EmbeddingModel(settings.embedding_model)
-    retriever = RagRetriever(embedding_model, vector_store)
-    llm_provider = create_llm_provider(settings)
-    generator = AnswerGenerator(
-        retriever,
-        llm_provider,
-        max_context_chars=settings.rag_max_context_chars,
-    )
-
     with console.status("Recuperando documentos e gerando análise..."):
-        result = generator.generate_answer(meeting_notes, top_k=settings.rag_top_k)
+        result = service.analyze_meeting_notes(
+            meeting_notes, top_k=settings.rag_top_k
+        )
 
     console.print("\n[bold green]Análise[/bold green]")
     console.print(Markdown(result["answer"]))
@@ -87,7 +68,12 @@ def main() -> None:
 
     try:
         run(meeting_notes)
-    except (ConfigurationError, LLMProviderError, ValueError) as exc:
+    except (
+        ConfigurationError,
+        LLMProviderError,
+        MemoraServiceError,
+        ValueError,
+    ) as exc:
         console.print(f"[bold red]Erro:[/bold red] {exc}")
         raise SystemExit(1) from None
 

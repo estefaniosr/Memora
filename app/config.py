@@ -55,7 +55,7 @@ def _positive_int(name: str, default: int) -> int:
     return value
 
 
-def load_settings() -> Settings:
+def load_settings(*, require_confluence: bool = False) -> Settings:
     """Load and validate settings from a local .env file or the environment."""
     load_dotenv()
 
@@ -68,7 +68,7 @@ def load_settings() -> Settings:
     values = {name: os.getenv(name, "").strip() for name in variable_names}
     missing = [name for name, value in values.items() if not value]
 
-    if missing:
+    if require_confluence and missing:
         raise ConfigurationError(
             "Variáveis de ambiente obrigatórias ausentes: " + ", ".join(missing)
         )

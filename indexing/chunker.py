@@ -56,6 +56,11 @@ def chunk_text(
         if chunk_content:
             chunk_index = len(chunks)
             chunk_metadata = {
+                key: value
+                for key, value in metadata.items()
+                if isinstance(value, (str, int, float, bool))
+            }
+            chunk_metadata.update({
                 "source": metadata.get("source", ""),
                 "source_id": source_id,
                 "title": title,
@@ -63,7 +68,7 @@ def chunk_text(
                 "space_key": metadata.get("space_key"),
                 "version": version,
                 "chunk_index": chunk_index,
-            }
+            })
             chunks.append(
                 TextChunk(
                     chunk_id=f"{source_id}:v{version}:chunk:{chunk_index}",
@@ -77,6 +82,7 @@ def chunk_text(
 
         if end >= len(normalized_content):
             break
-        start = end - overlap
+        next_start = end - overlap
+        start = max(start + 1, next_start)
 
     return chunks

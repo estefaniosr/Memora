@@ -121,6 +121,21 @@ Somente as credenciais do provider selecionado são obrigatórias. Nunca publiqu
 
 ## Interface Web
 
+### Protótipo Alpine.js
+
+O frontend Alpine.js está em `ui/index.html` e é servido pela API do Memora. Para iniciar
+a interface integrada:
+
+```powershell
+python -m uvicorn app.web:app --reload
+```
+
+Depois, acesse `http://localhost:8000`. Busca, análise e sincronização usam o backend
+Python; recursos ainda planejados permanecem identificados na interface. A interface
+Streamlit abaixo continua disponível como alternativa.
+
+### Interface integrada (Streamlit)
+
 1. Instale as dependências e configure o `.env` conforme as seções anteriores:
 
 ```powershell
@@ -158,6 +173,7 @@ A sidebar mostra o espaço, os modelos e a quantidade de chunks, mas nunca exibe
 ## Testes
 
 ```powershell
+pip install -r requirements-dev.txt
 pytest
 ```
 

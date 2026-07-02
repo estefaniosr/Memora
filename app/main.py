@@ -10,8 +10,7 @@ from rich.table import Table
 
 from app.config import ConfigurationError, load_settings
 from connectors.confluence_client import ConfluenceAPIError, ConfluenceClient
-from extractors.html_cleaner import clean_confluence_html
-from models.source_document import SourceDocument
+from models.confluence_document import build_confluence_document
 
 console = Console()
 
@@ -36,34 +35,9 @@ def _page_summary(page: dict[str, Any]) -> tuple[str, str]:
     return str(content.get("id", "")), str(content.get("title", "Sem título"))
 
 
-def _build_document(
-    page: dict[str, Any], *, base_url: str, fallback_title: str
-) -> SourceDocument:
-    page_id = str(page.get("id", ""))
-    links = page.get("_links") or {}
-    web_ui_path = links.get("webui")
-    return SourceDocument(
-        source="confluence",
-        source_id=page_id,
-        title=str(page.get("title") or fallback_title),
-        url=f"{base_url}{web_ui_path}" if web_ui_path else None,
-        content=clean_confluence_html(
-            str(page.get("body", {}).get("storage", {}).get("value", ""))
-        ),
-        space_key=page.get("space", {}).get("key"),
-        version=page.get("version", {}).get("number"),
-        metadata={
-            "content_type": page.get("type"),
-            "created_by": page.get("history", {})
-            .get("createdBy", {})
-            .get("displayName"),
-        },
-    )
-
-
 def run() -> None:
     """Run a small end-to-end Confluence API smoke test."""
-    settings = load_settings()
+    settings = load_settings(require_confluence=True)
     client = ConfluenceClient(
         base_url=settings.confluence_base_url,
         email=settings.confluence_email,
@@ -90,7 +64,7 @@ def run() -> None:
             continue
 
         page = client.get_page_content(page_id)
-        document = _build_document(
+        document = build_confluence_document(
             page,
             base_url=settings.confluence_base_url,
             fallback_title=search_title,

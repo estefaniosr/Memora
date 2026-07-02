@@ -1,7 +1,10 @@
+from dataclasses import replace
 from typing import Any
 
+import pytest
+
 import services.memora_service as service_module
-from app.config import Settings
+from app.config import ConfigurationError, Settings
 from llm.base import LLMProvider
 from services.memora_service import MemoraService
 
@@ -57,6 +60,15 @@ class FakeVectorStore:
     def upsert_chunks(self, chunks: list[Any], embeddings: list[list[float]]) -> None:
         self.current_count += len(chunks)
 
+    def delete_source(self, source_id: str) -> None:
+        self.current_count = 0
+
+    def replace_source_chunks(
+        self, chunks: list[Any], embeddings: list[list[float]]
+    ) -> None:
+        self.delete_source(chunks[0].source_id)
+        self.upsert_chunks(chunks, embeddings)
+
 
 class FakeLLM(LLMProvider):
     def generate(self, prompt: str) -> str:
@@ -67,8 +79,10 @@ class FakeConfluenceClient:
     def __init__(self, **kwargs: Any) -> None:
         pass
 
-    def search_pages(self, space_key: str, limit: int = 50) -> dict[str, Any]:
-        return {"results": [{"content": {"id": "10", "title": "Portal B2B"}}]}
+    def get_all_pages(
+        self, space_key: str, page_size: int = 25, max_pages: int | None = None
+    ) -> list[dict[str, Any]]:
+        return [{"content": {"id": "10", "title": "Portal B2B"}}]
 
     def get_page_content(self, page_id: str) -> dict[str, Any]:
         return {
@@ -129,3 +143,11 @@ def test_sync_confluence_returns_indexing_metrics(monkeypatch: Any) -> None:
     assert result["documents_processed"] == 1
     assert result["chunks_indexed"] == 1
     assert result["total_chunks"] == 1
+
+
+def test_sync_confluence_requires_credentials(monkeypatch: Any) -> None:
+    settings = replace(make_settings(), confluence_api_token="")
+    service = MemoraService(settings=settings, vector_store=FakeVectorStore())  # type: ignore[arg-type]
+
+    with pytest.raises(ConfigurationError, match="CONFLUENCE_API_TOKEN"):
+        service.sync_confluence()
